@@ -1,4 +1,4 @@
-const CACHE_NAME = 'wallet-tracker-v1';
+const CACHE_NAME = 'wallet-tracker-v3';
 
 // รายชื่อไฟล์ที่ต้องการให้โหลดเก็บไว้ในเครื่อง (เพื่อให้เปิดตอนไม่มีเน็ตได้)
 const APP_SHELL = [
