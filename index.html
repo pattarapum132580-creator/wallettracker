@@ -118,31 +118,32 @@
   .weather-widget{ margin-bottom: 16px; padding: 12px 14px; }
   .weather-ask-btn{ width:100%; background:none; border:1px dashed var(--border-dim); color: var(--text-dim); font-size: 12px; padding: 10px; border-radius: 8px; cursor: pointer; font-family: var(--font-body); }
   .weather-ask-btn:active{ background: var(--panel-light); }
-  .weather-current{ display:flex; align-items:center; gap:12px; }
+
+  /* แก้ไข weather-content เดิมให้เป็นแนวตั้ง */
+  .weather-content { display: flex; flex-direction: column; align-items: stretch; width: 100%; gap: 10px; }
+  .weather-main { display: flex; align-items: center; gap: 12px; width: 100%; }
   .weather-icon{ font-size: 30px; line-height:1; flex-shrink:0; }
   .weather-info{ min-width:0; flex:1; }
   .weather-place{ font-size: 11px; color: var(--gold); margin-bottom: 2px; }
   .weather-temp{ font-size: 15px; font-weight:600; }
-  .weather-desc{ font-size: 12px; color: var(--text-dim); }
-  .weather-rain{ font-size: 11px; color: #6ec6ff; margin-top:2px; }
   .weather-error{ font-size: 12px; color: var(--text-dim); text-align:center; padding: 4px; }
-  .weather-hourly{ margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--border-dim); }
-  .weather-hourly-scroll{
-    display:flex; gap: 8px; overflow-x: auto; padding-bottom: 4px;
-    -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity;
+  
+  /* เพิ่ม CSS สำหรับชุดรายชั่วโมง */
+  .hourly-forecast {
+    display: flex; gap: 14px; overflow-x: auto; width: 100%;
+    padding: 10px 0 4px; border-top: 1px dashed var(--border-dim);
+    -webkit-overflow-scrolling: touch;
   }
-  .weather-hourly-scroll::-webkit-scrollbar{ height: 4px; }
-  .weather-hourly-scroll::-webkit-scrollbar-thumb{ background: var(--border-dim); border-radius: 4px; }
-  .weather-hour{
-    flex: 0 0 auto; width: 50px; display:flex; flex-direction:column; align-items:center; gap:4px;
-    padding: 8px 4px; background: var(--panel-light); border: 1px solid var(--border-dim);
-    border-radius: 10px; scroll-snap-align: start;
-  }
-  .weather-hour-now{ border-color: var(--gold-dim); box-shadow: 0 0 0 1px var(--gold-dim) inset; }
-  .weather-hour-time{ font-size: 10px; color: var(--text-dim); }
-  .weather-hour-icon{ font-size: 18px; line-height:1; }
-  .weather-hour-temp{ font-size: 11px; font-weight:600; }
-  .weather-hour-rain{ font-size: 10px; color: #6ec6ff; }
+  .hourly-forecast::-webkit-scrollbar { height: 4px; }
+  .hourly-forecast::-webkit-scrollbar-thumb { background: var(--border-dim); border-radius: 4px; }
+  
+  .hourly-item { display: flex; flex-direction: column; align-items: center; min-width: 42px; gap: 6px; }
+  .h-time { font-size: 11px; color: var(--text-dim); }
+  .h-icon { font-size: 18px; line-height: 1; }
+  .h-temp { font-size: 12px; font-weight: 600; color: var(--text); }
+  .h-rain { font-size: 10px; color: var(--text-dim); }
+  .h-rain.wet { color: #6ec6ff; font-weight: bold; text-shadow: 0 0 6px rgba(110, 198, 255, 0.4); }
+
   .reminder-banner{ margin-bottom: 16px; padding: 14px; border-color: var(--gold-dim); background: linear-gradient(135deg, rgba(244,208,63,0.12), var(--panel)); display:flex; flex-direction:column; gap:10px; }
   .reminder-banner-text{ font-size: 13px; line-height:1.5; }
   .reminder-banner-actions{ display:flex; gap:8px; }
@@ -330,7 +331,7 @@
   </div>
 
   <div class="card pixel-box weather-widget" id="weatherWidget">
-    <div id="weatherContent" class="weather-content-wrap">
+    <div id="weatherContent" class="weather-content">
       <button class="weather-ask-btn" id="weatherAskBtn">📍 เปิดสิทธิ์ตำแหน่งเพื่อดูสภาพอากาศ</button>
     </div>
   </div>
@@ -1247,80 +1248,37 @@ async function fetchWeatherForCoords(lat, lon){
   return res.json();
 }
 
-// Builds a list of the next ~24 hours (starting from the current hour) with
-// temperature, weather code, and rain chance — used for the scrollable hourly strip.
-function buildHourlyForecast(hourly){
-  if(!hourly || !hourly.time) return [];
-  const now = new Date();
-  const list = [];
-  for(let i=0; i<hourly.time.length; i++){
-    const t = new Date(hourly.time[i]);
-    const isPast = t < now && !(t.getFullYear() === now.getFullYear() && t.getMonth() === now.getMonth() &&
-      t.getDate() === now.getDate() && t.getHours() === now.getHours());
-    if(isPast) continue;
-    list.push({
-      hour: t.getHours(),
-      temp: hourly.temperature_2m[i],
-      code: hourly.weather_code[i],
-      rain: hourly.precipitation_probability[i]
-    });
-    if(list.length >= 24) break;
-  }
-  return list;
-}
-
-// Finds the next block of hours (today) where rain chance is 50%+ and returns a
-// human-readable time range, or null if no rain expected for the rest of today.
-function findRainWindow(hourly){
-  if(!hourly || !hourly.time) return null;
-  const nowHour = new Date().getHours();
-  let startIdx = null;
-  for(let i=0; i<hourly.time.length; i++){
-    const h = new Date(hourly.time[i]).getHours();
-    if(h < nowHour) continue;
-    const prob = hourly.precipitation_probability[i];
-    if(prob >= 50){
-      if(startIdx === null) startIdx = i;
-    } else if(startIdx !== null){
-      const startH = new Date(hourly.time[startIdx]).getHours();
-      const endH = new Date(hourly.time[i-1]).getHours() + 1;
-      return `${startH}:00-${endH}:00 น.`;
-    }
-  }
-  if(startIdx !== null){
-    const startH = new Date(hourly.time[startIdx]).getHours();
-    return `${startH}:00 น. เป็นต้นไป`;
-  }
-  return null;
-}
-
-function renderHourlyItem(h, isNow){
-  const [, hIcon] = describeWeatherCode(h.code);
-  const label = isNow ? 'ตอนนี้' : `${h.hour}:00`;
-  return `
-    <div class="weather-hour${isNow ? ' weather-hour-now' : ''}">
-      <div class="weather-hour-time">${label}</div>
-      <div class="weather-hour-icon">${hIcon}</div>
-      <div class="weather-hour-temp">${Math.round(h.temp)}°</div>
-      <div class="weather-hour-rain">💧${h.rain}%</div>
-    </div>
-  `;
-}
-
 function renderWeather(data){
   const [desc, icon] = describeWeatherCode(data.code);
   const contentEl = $('weatherContent');
-  const nowHour = new Date().getHours();
-  const hourlyHtml = (data.hourly && data.hourly.length)
-    ? `<div class="weather-hourly"><div class="weather-hourly-scroll">${data.hourly.map((h, idx) => renderHourlyItem(h, idx === 0)).join('')}</div></div>`
-    : '';
+  
+  let hourlyHtml = '';
+  if (data.hourly && data.hourly.length > 0) {
+    hourlyHtml = '<div class="hourly-forecast">';
+    data.hourly.forEach(h => {
+      const d = new Date(h.time);
+      const timeStr = d.getHours().toString().padStart(2, '0') + ':00';
+      const [, hIcon] = describeWeatherCode(h.code);
+      const isWet = h.prob >= 30; 
+      
+      hourlyHtml += `
+        <div class="hourly-item">
+          <div class="h-time">${timeStr}</div>
+          <div class="h-icon">${hIcon}</div>
+          <div class="h-temp">${Math.round(h.temp)}°</div>
+          <div class="h-rain ${isWet ? 'wet' : ''}">${h.prob}%</div>
+        </div>
+      `;
+    });
+    hourlyHtml += '</div>';
+  }
+
   contentEl.innerHTML = `
-    <div class="weather-current">
+    <div class="weather-main">
       <div class="weather-icon">${icon}</div>
       <div class="weather-info">
         <div class="weather-place">📍 ${escapeHtml(data.place)}</div>
         <div class="weather-temp">${Math.round(data.temp)}°C · ${desc}</div>
-        ${data.rainWindow ? `<div class="weather-rain">☔ ฝนอาจตกช่วง ${data.rainWindow}</div>` : `<div class="weather-rain" style="color:var(--income);">ไม่มีฝนวันนี้</div>`}
       </div>
     </div>
     ${hourlyHtml}
@@ -1343,11 +1301,32 @@ function loadWeather(){
         fetchWeatherForCoords(latitude, longitude),
         reverseGeocodeThai(latitude, longitude)
       ]);
+      
+      const nowMs = Date.now();
+      let startIndex = 0;
+      for (let i = 0; i < weatherData.hourly.time.length; i++) {
+        if (new Date(weatherData.hourly.time[i]).getTime() >= nowMs - 3600000) {
+           startIndex = i;
+           break;
+        }
+      }
+      
+      const next12Hours = [];
+      for (let i = startIndex; i < startIndex + 12; i++) {
+        if (weatherData.hourly.time[i]) {
+          next12Hours.push({
+            time: weatherData.hourly.time[i],
+            temp: weatherData.hourly.temperature_2m[i],
+            prob: weatherData.hourly.precipitation_probability[i],
+            code: weatherData.hourly.weather_code[i]
+          });
+        }
+      }
+
       const result = {
         temp: weatherData.current.temperature_2m,
         code: weatherData.current.weather_code,
-        rainWindow: findRainWindow(weatherData.hourly),
-        hourly: buildHourlyForecast(weatherData.hourly),
+        hourly: next12Hours,
         place: placeName
       };
       saveWeatherCache(result);
