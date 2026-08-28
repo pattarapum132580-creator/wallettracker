@@ -1589,5 +1589,24 @@ if (localStorage.getItem(PIN_KEY)) { showPinScreen('login'); }
 else { loadAll(); render(); checkMonthEndReminder(); checkAppShortcuts(); }
 if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js?v=' + Date.now()); }); }
 </script>
+<!-- 🔔 Reminder Settings Overlay (กู้คืน) -->
+<div class="overlay" id="reminderOverlay" style="display:none; z-index:65;">
+  <div class="sheet">
+    <button class="close-x" id="closeReminderOverlay" aria-label="ปิด">✕</button>
+    <div class="sheet-title" style="margin-bottom:16px;">▸ ตั้งเตือนออมเงินสิ้นเดือน</div>
+    <label style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+      <input type="checkbox" id="reminderEnabled"> เปิดการแจ้งเตือน
+    </label>
+    <label for="reminderDaysBefore">เตือนก่อนสิ้นเดือนกี่วัน (0-15)</label>
+    <input type="number" id="reminderDaysBefore" min="0" max="15" value="0">
+    <label for="reminderNote">ข้อความที่จะเตือน</label>
+    <input type="text" id="reminderNote" placeholder="เช่น โอนเงินออม!">
+    <div id="reminderNotifStatus" style="font-size:11px; margin:8px 0;"></div>
+    <div class="btn-row" style="margin-top:16px;">
+      <button class="btn btn-secondary" id="cancelReminderBtn">ยกเลิก</button>
+      <button class="btn btn-primary" id="saveReminderBtn" style="flex:1.5;">บันทึก</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
