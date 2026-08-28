@@ -325,6 +325,27 @@
   .btn-wish-del { background: transparent; color: var(--text-dim); border: none; font-size: 16px; cursor: pointer; padding: 4px; }
   
 </style>
+<!-- 🛠️ Fix: กันข้อความล้นบรรทัด -->
+<style>
+  /* แถวรายการประจำ: ให้ตัดบรรทัด + ห่อได้ */
+  .recur-row{ flex-wrap: wrap; }
+  .recur-row .tx-left{ min-width: 0; flex: 1; }
+  .recur-row .tx-left *{
+    overflow-wrap: break-word;
+    word-break: break-word;
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  /* ตัวเลข/ปุ่มไม่ถูกบีบจนเบี้ยว */
+  .recur-actions{ flex-shrink: 0; }
+  .tx-amount{ white-space: nowrap; }
+  /* ป้ายวันที่/หมวดหมู่เล็กลงเล็กน้อย */
+  .recur-row .tx-cat, .recur-row .tx-date{ font-size: 11px; }
+  /* การ์ด: กันข้อความยาวล้นขอบ */
+  .card{ overflow-wrap: break-word; min-width: 0; }
+  .card *{ max-width: 100%; }
+</style>
 </head>
 <body>
 
