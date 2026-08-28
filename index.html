@@ -346,6 +346,27 @@
   .card{ overflow-wrap: break-word; min-width: 0; }
   .card *{ max-width: 100%; }
 </style>
+<!-- 🛠️ Fix2: บังคับแถวรายการอยู่บรรทัดเดียว -->
+<style>
+  .recur-row{ flex-wrap: nowrap !important; align-items: center; }
+  .recur-row .tx-left{
+    min-width: 0;
+    flex: 1 1 auto;
+    overflow: hidden;
+  }
+  .recur-row .tx-left *{
+    white-space: nowrap !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  /* ลดขนาดฟอนต์ให้พอดีแถว */
+  .recur-row .tx-cat{ font-size: 12px; }
+  .recur-row .tx-note, .recur-row .tx-date{ font-size: 11px; }
+  /* ฝั่งขวาห้ามยุบ */
+  .recur-row .recur-actions{ flex-shrink: 0; margin-left: 8px; }
+  .recur-row .tx-amount{ font-size: 14px; }
+  .recur-rowadd-recur-btn{ font-size: 11px; padding: 5px 8px; }
+</style>
 </head>
 <body>
 
