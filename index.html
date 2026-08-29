@@ -1719,5 +1719,95 @@ if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navi
     </div>
   </div>
 </div>
+<script>
+/* 🛡️ อุดบั๊กร้ายแรง: ห้ามยิงข้อมูลว่างขึ้นคลาวด์ทับ backup */
+(function(){
+  const orig = window.autoCloudSync;
+  if (typeof orig !== 'function') return;
+  window.autoCloudSync = function(){
+    try{
+      const empty = (!window.transactions || window.transactions.length===0) &&
+                    (!window.recurring || window.recurring.length===0) &&
+                    (!window.wishlist || window.wishlist.length===0);
+      const hasCloud = Object.keys(localStorage).some(function(k){
+        return /bin|cloud|jsonbin/i.test(k) && (localStorage.getItem(k)||'').length>0;
+      });
+      if (empty && hasCloud){
+        console.warn('[SAFETY] ข้อมูลในเครื่องว่าง — ยกเลิกการ sync ขึ้นคลาวด์เพื่อไม่ให้ทับ backup');
+        return;
+      }
+    }catch(e){}
+    return orig.apply(this, arguments);
+  };
+})();
+</script>
+
+<!-- 📝 Notes Overlay -->
+<div class="overlay" id="notesOverlay" style="display:none; z-index:70;">
+  <div class="sheet">
+    <button class="close-x" onclick="document.getElementById('notesOverlay').style.display='none'">✕</button>
+    <div class="sheet-title">▸ โน้ตประจำวัน</div>
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:12px;">
+      <button class="icon-btn" id="notePrevDay">‹</button>
+      <b id="noteDateLabel" style="font-size:14px;"></b>
+      <button class="icon-btn" id="noteNextDay">›</button>
+    </div>
+    <div style="display:flex; gap:8px; margin-bottom:12px;">
+      <input type="text" id="noteInput" placeholder="วันนี้อยากทำอะไรบ้าง?" style="flex:1;">
+      <button class="btn btn-primary" id="noteAddBtn" style="padding:8px 14px;">+</button>
+    </div>
+    <div id="noteList"></div>
+    <div id="noteEmpty" class="empty-note" style="display:none;">ยังไม่มีโน้ตสำหรับวันนี้</div>
+  </div>
+</div>
+<button id="notesFab" style="position:fixed; right:14px; bottom:72px; width:52px; height:52px; border-radius:50%; border:1px solid var(--gold-dim); background:var(--panel); color:var(--gold); font-size:22px; z-index:50; box-shadow:0 4px 12px rgba(0,0,0,.4); cursor:pointer;">📝</button>
+
+<script>
+(function(){
+  const KEY = 'wallet-notes';
+  let offset = 0;
+  const dstr = (off) => { const d = new Date(); d.setDate(d.getDate()+off); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
+  const load = () => { try{ return JSON.parse(localStorage.getItem(KEY)||'{}'); }catch(e){ return {}; } };
+  const save = (db) => { localStorage.setItem(KEY, JSON.stringify(db)); };
+  const thai = (s) => { const p = s.split('-'); return parseInt(p[2])+'/'+parseInt(p[1])+'/'+(parseInt(p[0])+543); };
+
+  function render(){
+    const today = dstr(offset);
+    document.getElementById('noteDateLabel').textContent = (offset===0?'วันนี้ · ':'')+thai(today);
+    const db = load(); const items = db[today] || [];
+    const list = document.getElementById('noteList'); list.innerHTML = '';
+    document.getElementById('noteEmpty').style.display = items.length? 'none':'block';
+    items.forEach(function(it){
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex; align-items:center; gap:10px; padding:10px 4px; border-bottom:1px dashed rgba(255,255,255,.12);';
+      row.innerHTML = '<input type="checkbox" '+(it.done?'checked':'')+' style="width:18px; height:18px; accent-color:#d4af37;">'+
+        '<span style="flex:1; '+(it.done?'text-decoration:line-through; opacity:.5;':'')+'">'+it.text.replace(/</g,'&lt;')+'</span>'+
+        '<button style="background:none; border:none; color:#e05555; cursor:pointer; font-size:16px;">✕</button>';
+      row.querySelector('input').addEventListener('change', function(e){
+        const db2 = load(); const arr = db2[today]||[];
+        const t = arr.find(x=>x.id===it.id); if(t){ t.done = e.target.checked; save(db2); render(); }
+      });
+      row.querySelector('button').addEventListener('click', function(){
+        const db2 = load(); db2[today] = (db2[today]||[]).filter(x=>x.id!==it.id); save(db2); render();
+      });
+      list.appendChild(row);
+    });
+  }
+  function addNote(){
+    const inp = document.getElementById('noteInput'); const text = inp.value.trim();
+    if(!text) return;
+    const today = dstr(offset); const db = load();
+    db[today] = db[today]||[];
+    db[today].push({ id: Date.now().toString(36), text: text, done: false });
+    save(db); inp.value=''; render();
+    if (window.vibe) window.vibe();
+  }
+  document.getElementById('notesFab').addEventListener('click', function(){ offset=0; render(); document.getElementById('notesOverlay').style.display='flex'; });
+  document.getElementById('noteAddBtn').addEventListener('click', addNote);
+  document.getElementById('noteInput').addEventListener('keydown', function(e){ if(e.key==='Enter') addNote(); });
+  document.getElementById('notePrevDay').addEventListener('click', function(){ offset--; render(); });
+  document.getElementById('noteNextDay').addEventListener('click', function(){ if(offset<0) offset++; render(); });
+})();
+</script>
 </body>
 </html>
