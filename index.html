@@ -1282,74 +1282,141 @@ async function requestPersistentStorage(){
 }
 
 let cloudSyncReady = false;
+let cloudSyncTimer = null;
+let cloudSyncInFlight = false;
+let cloudSyncPending = false;
+let cloudSyncPaused = false;
+let cloudConflictBlocked = false;
+const CLOUD_REV_KEY_PREFIX = 'cloud_revision:';
+const CLOUD_DEVICE_ID_KEY = 'cloud_device_id';
+const CLOUD_WRITE_ID_KEY_PREFIX = 'cloud_write_id:';
 
-// Safety check run once at startup: if local data looks empty but a cloud
-// backup is configured, check the cloud FIRST before allowing any auto-push.
-// Without this, clearing site data / browser cache (which wipes localStorage)
-// followed by any save would silently push an empty state over a real cloud
-// backup, destroying both copies with no way to recover.
+function getCloudDeviceId(){
+  let id = localStorage.getItem(CLOUD_DEVICE_ID_KEY);
+  if(!id){
+    id = (window.crypto && window.crypto.randomUUID) ? window.crypto.randomUUID() : `device-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    localStorage.setItem(CLOUD_DEVICE_ID_KEY, id);
+  }
+  return id;
+}
+function cloudRevisionKey(binId){ return `${CLOUD_REV_KEY_PREFIX}${binId}`; }
+function getKnownCloudRevision(binId){ const raw=localStorage.getItem(cloudRevisionKey(binId)); if(raw===null) return null; const n=Number(raw); return Number.isFinite(n)&&n>=0?n:null; }
+function setKnownCloudRevision(binId, revision){ localStorage.setItem(cloudRevisionKey(binId), String(Math.max(0, Number(revision)||0))); }
+function cloudWriteIdKey(binId){ return `${CLOUD_WRITE_ID_KEY_PREFIX}${binId}`; }
+function getKnownCloudWriteId(binId){ return localStorage.getItem(cloudWriteIdKey(binId)); }
+function setKnownCloudState(binId, revision, writeId){ setKnownCloudRevision(binId,revision); if(writeId) localStorage.setItem(cloudWriteIdKey(binId),String(writeId)); else localStorage.removeItem(cloudWriteIdKey(binId)); }
+function cloudRevisionFromRecord(rec){ const n=Number(rec && rec.revision); return Number.isFinite(n)&&n>=0?n:0; }
+function cloudWriteIdFromRecord(rec){ return String((rec && rec.writeId)||''); }
+function setCloudStatus(message, isError=false){ const el=$('cloudStatus'); if(!el) return; el.textContent=message; el.style.color=isError?'var(--expense)':'var(--gold)'; }
+function markCloudConflict(message){ const first=!cloudConflictBlocked; cloudConflictBlocked=true; setCloudStatus(message,true); if(first) showToast(message); }
+function clearCloudConflict(){ cloudConflictBlocked=false; setCloudStatus(''); }
+function normalizeCloudRecord(r={}){ return { transactions:r.transactions||[], recurring:r.recurring||[], monthlyBudget:r.monthlyBudget??null, customDailyBudget:r.customDailyBudget??null, customCats:r.customCats||{}, wishlist:r.wishlist||[], userExp:r.userExp||0, plannerNote:String(r.plannerNote||'') }; }
+function localCloudRecord(){ return normalizeCloudRecord({ transactions, recurring, monthlyBudget, customDailyBudget, customCats, wishlist, userExp, plannerNote:localStorage.getItem(PLANNER_NOTE_KEY)||'' }); }
+function cloudRecordsEquivalent(a,b){ return JSON.stringify(normalizeCloudRecord(a))===JSON.stringify(normalizeCloudRecord(b)); }
+async function fetchLatestCloudRecord(key, binId){ const res=await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`,{headers:{'X-Master-Key':key}}); if(!res.ok) throw new Error(`Cloud read failed (${res.status})`); const data=await res.json(); return {record:data.record||{},metadata:data.metadata||{}}; }
+function buildCloudPayload(revision, writeId){ const now=Date.now(); return { transactions, recurring, monthlyBudget, customDailyBudget, customCats, wishlist, userExp, plannerNote:($('plannerNote')&&$('plannerNote').value)||localStorage.getItem(PLANNER_NOTE_KEY)||'', savedAt:now, updatedAt:now, revision, updatedBy:getCloudDeviceId(), writeId, version:3 }; }
+
+// Startup safety: inspect cloud revision before any auto-push.
 async function safeInitialCloudCheck(){
-  const key = localStorage.getItem('cloud_api_key');
-  const bin = localStorage.getItem('cloud_bin_id');
-  if(!key || !bin){ cloudSyncReady = true; return; }
-
-  const localLooksEmpty = transactions.length === 0 && recurring.length === 0 && wishlist.length === 0 && !localStorage.getItem(PLANNER_NOTE_KEY) && monthlyBudget === null && customDailyBudget === null && userExp === 0;
-  if(!localLooksEmpty){ cloudSyncReady = true; return; }
-
+  const key=localStorage.getItem('cloud_api_key');
+  const bin=localStorage.getItem('cloud_bin_id');
+  clearTimeout(cloudSyncTimer); cloudSyncReady=false; clearCloudConflict();
+  if(!key||!bin){ cloudSyncReady=true; return; }
+  const localLooksEmpty=transactions.length===0&&recurring.length===0&&wishlist.length===0&&!localStorage.getItem(PLANNER_NOTE_KEY)&&monthlyBudget===null&&customDailyBudget===null&&userExp===0;
   try{
-    const res = await fetch(`https://api.jsonbin.io/v3/b/${bin}/latest`, { headers: { 'X-Master-Key': key } });
-    if(res.ok){
-      const data = await res.json();
-      const rec = data.record || {};
-      const cloudHasData = snapshotHasUserData(rec);
-      if(cloudHasData){
-        if(rec.transactions) transactions = rec.transactions;
-        if(rec.recurring) recurring = rec.recurring;
-        if(rec.wishlist) wishlist = rec.wishlist;
-        if(rec.monthlyBudget !== undefined) monthlyBudget = rec.monthlyBudget;
-        if(rec.customDailyBudget !== undefined) customDailyBudget = rec.customDailyBudget;
-        if(rec.customCats) customCats = rec.customCats;
-        if(rec.userExp !== undefined) userExp = rec.userExp;
-        if(rec.plannerNote !== undefined) localStorage.setItem(PLANNER_NOTE_KEY, String(rec.plannerNote || ''));
-        applyStateSnapshot({ transactions, recurring, wishlist, monthlyBudget, customDailyBudget, customCats, userExp, plannerNote: rec.plannerNote || '', savedAt: Date.now() });
-        await persistStateNow();
-        render();
-        showToast('\u2601\ufe0f \u0e40\u0e04\u0e23\u0e37\u0e48\u0e2d\u0e07\u0e19\u0e35\u0e49\u0e44\u0e21\u0e48\u0e21\u0e35\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25 \u2014 \u0e01\u0e39\u0e49\u0e04\u0e37\u0e19\u0e08\u0e32\u0e01\u0e04\u0e25\u0e32\u0e27\u0e14\u0e4c\u0e43\u0e2b\u0e49\u0e2d\u0e31\u0e15\u0e42\u0e19\u0e21\u0e31\u0e15\u0e34\u0e41\u0e25\u0e49\u0e27');
-      }
+    const {record:rec}=await fetchLatestCloudRecord(key,bin);
+    const remoteRevision=cloudRevisionFromRecord(rec);
+    const knownRevision=getKnownCloudRevision(bin);
+    const knownWriteId=getKnownCloudWriteId(bin);
+    const cloudHasData=snapshotHasUserData(rec);
+    if(localLooksEmpty&&cloudHasData){
+      if(rec.transactions) transactions=rec.transactions; if(rec.recurring) recurring=rec.recurring; if(rec.wishlist) wishlist=rec.wishlist;
+      if(rec.monthlyBudget!==undefined) monthlyBudget=rec.monthlyBudget; if(rec.customDailyBudget!==undefined) customDailyBudget=rec.customDailyBudget;
+      if(rec.customCats) customCats=rec.customCats; if(rec.userExp!==undefined) userExp=rec.userExp;
+      if(rec.plannerNote!==undefined) localStorage.setItem(PLANNER_NOTE_KEY,String(rec.plannerNote||''));
+      applyStateSnapshot({transactions,recurring,wishlist,monthlyBudget,customDailyBudget,customCats,userExp,plannerNote:rec.plannerNote||'',savedAt:Date.now()});
+      setKnownCloudState(bin,remoteRevision,cloudWriteIdFromRecord(rec)); await persistStateNow(); render();
+      showToast('☁️ เครื่องนี้ไม่มีข้อมูล — กู้คืนจากคลาวด์ให้อัตโนมัติแล้ว');
+    }else if(knownRevision===null){
+      if(remoteRevision===0&&!cloudHasData) setKnownCloudState(bin,0,'');
+      else if(remoteRevision===0&&cloudRecordsEquivalent(rec,localCloudRecord())) setKnownCloudState(bin,0,'');
+      else markCloudConflict(`⚠️ คลาวด์มีข้อมูลที่เครื่องนี้ยังไม่ยืนยัน (revision ${remoteRevision}) กรุณาดึงข้อมูลจากคลาวด์ก่อน`);
+    }else if(remoteRevision!==knownRevision){
+      markCloudConflict(`⚠️ พบการแก้ไขจากอุปกรณ์อื่น (คลาวด์ r${remoteRevision}, เครื่องนี้ r${knownRevision})`);
+    }else if(remoteRevision===0&&!cloudRecordsEquivalent(rec,localCloudRecord())){
+      markCloudConflict('⚠️ พบข้อมูลคลาวด์รุ่นเก่าถูกแก้จากอีกอุปกรณ์ ระบบหยุดซิงก์ไว้ก่อน');
+    }else if(remoteRevision>0&&cloudWriteIdFromRecord(rec)!==String(knownWriteId||'')){
+      markCloudConflict(`⚠️ revision เท่ากันแต่ผู้เขียนล่าสุดเปลี่ยนไป ระบบหยุดซิงก์เพื่อกันข้อมูลทับกัน`);
     }
-  }catch(e){ console.error('safeInitialCloudCheck failed', e); }
-  cloudSyncReady = true;
+  }catch(e){ console.error('safeInitialCloudCheck failed',e); setCloudStatus('ตรวจคลาวด์ไม่สำเร็จ — จะไม่เขียนทับจนกว่าจะตรวจสอบได้',true); }
+  cloudSyncReady=true;
 }
 
-async function autoCloudSync() {
-  if(!cloudSyncReady) return;
-  const key = localStorage.getItem('cloud_api_key'); const binId = localStorage.getItem('cloud_bin_id'); if(!key || !binId) return;
-  $('cloudStatus').textContent = 'กำลังซิงค์... ☁️';
-  try {
-      const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Master-Key': key }, body: JSON.stringify({ transactions, recurring, monthlyBudget, customDailyBudget, customCats, wishlist, userExp, plannerNote: ($('plannerNote') && $('plannerNote').value) || localStorage.getItem(PLANNER_NOTE_KEY) || '', savedAt: Date.now(), version: 2 }) });
-      if(res.ok) $('cloudStatus').textContent = 'ซิงค์สำเร็จ! ✓'; else $('cloudStatus').textContent = 'ซิงค์ล้มเหลว ❌';
-  } catch(e) { $('cloudStatus').textContent = 'ออฟไลน์ / ซิงค์ล้มเหลว ❌'; }
-  setTimeout(()=> { $('cloudStatus').textContent = ''; }, 3000);
+function autoCloudSync(){
+  if(!cloudSyncReady||cloudSyncPaused||cloudConflictBlocked) return;
+  const key=localStorage.getItem('cloud_api_key'), binId=localStorage.getItem('cloud_bin_id');
+  if(!key||!binId) return;
+  clearTimeout(cloudSyncTimer); cloudSyncTimer=setTimeout(runCloudSync,1200);
+}
+async function runCloudSync(){
+  if(!cloudSyncReady||cloudSyncPaused||cloudConflictBlocked) return;
+  const key=localStorage.getItem('cloud_api_key'), binId=localStorage.getItem('cloud_bin_id');
+  if(!key||!binId) return;
+  if(cloudSyncInFlight){ cloudSyncPending=true; return; }
+  cloudSyncInFlight=true; cloudSyncPending=false; setCloudStatus('กำลังตรวจ revision และซิงก์... ☁️');
+  try{
+    const {record:remote}=await fetchLatestCloudRecord(key,binId);
+    const remoteRevision=cloudRevisionFromRecord(remote); let knownRevision=getKnownCloudRevision(binId); const knownWriteId=getKnownCloudWriteId(binId);
+    if(knownRevision===null){
+      if(remoteRevision===0&&!snapshotHasUserData(remote)){ knownRevision=0; setKnownCloudState(binId,0,''); }
+      else if(remoteRevision===0&&cloudRecordsEquivalent(remote,localCloudRecord())){ knownRevision=0; setKnownCloudState(binId,0,''); }
+      else { markCloudConflict(`⚠️ หยุดซิงก์: คลาวด์อยู่ที่ r${remoteRevision} แต่เครื่องนี้ยังไม่ยืนยันเวอร์ชันนี้`); return; }
+    }
+    if(remoteRevision!==knownRevision){ markCloudConflict(`⚠️ หยุดซิงก์เพื่อกันข้อมูลทับกัน (คลาวด์ r${remoteRevision}, เครื่องนี้ r${knownRevision})`); return; }
+    if(remoteRevision===0&&!cloudRecordsEquivalent(remote,localCloudRecord())){ markCloudConflict('⚠️ ข้อมูลคลาวด์รุ่นเก่าถูกแก้จากอีกอุปกรณ์ ระบบหยุดซิงก์ไว้ก่อน'); return; }
+    if(remoteRevision>0&&cloudWriteIdFromRecord(remote)!==String(knownWriteId||'')){ markCloudConflict('⚠️ revision เท่ากันแต่ writeId ไม่ตรง ระบบหยุดซิงก์เพื่อกันข้อมูลทับกัน'); return; }
+    const nextRevision=remoteRevision+1;
+    const writeId=`${getCloudDeviceId()}-${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+    const payload=buildCloudPayload(nextRevision,writeId);
+    const res=await fetch(`https://api.jsonbin.io/v3/b/${binId}`,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':key,'X-Bin-Versioning':'true'},body:JSON.stringify(payload)});
+    if(!res.ok) throw new Error(`Cloud write failed (${res.status})`);
+    const {record:verified}=await fetchLatestCloudRecord(key,binId);
+    if(cloudRevisionFromRecord(verified)!==nextRevision||verified.writeId!==writeId){ markCloudConflict('⚠️ ตรวจพบการซิงก์ชนกันจากหลายอุปกรณ์ ระบบหยุดซิงก์อัตโนมัติแล้ว'); return; }
+    setKnownCloudState(binId,nextRevision,writeId); localStorage.setItem('cloud_last_sync_at',String(Date.now()));
+    setCloudStatus(`ซิงก์แล้ว • revision ${nextRevision} ☁️`); setTimeout(()=>{ if(!cloudConflictBlocked) setCloudStatus(''); },3000);
+  }catch(e){ console.error('autoCloudSync failed',e); setCloudStatus('ออฟไลน์ / ซิงก์ไม่สำเร็จ — ยังไม่เขียนทับคลาวด์',true); }
+  finally{ cloudSyncInFlight=false; if(cloudSyncPending&&!cloudConflictBlocked){ cloudSyncPending=false; autoCloudSync(); } }
 }
 
-$('cloudBtnOpen').addEventListener('click', ()=>{ $('cloudApiKey').value = localStorage.getItem('cloud_api_key') || ''; $('cloudBinId').value = localStorage.getItem('cloud_bin_id') || ''; $('cloudSyncOverlay').style.display = 'flex'; });
-$('cloudSaveSetupBtn').addEventListener('click', ()=>{ const key = $('cloudApiKey').value.trim(); const bin = $('cloudBinId').value.trim(); if(key) localStorage.setItem('cloud_api_key', key); else localStorage.removeItem('cloud_api_key'); if(bin) localStorage.setItem('cloud_bin_id', bin); else localStorage.removeItem('cloud_bin_id'); $('cloudSyncOverlay').style.display = 'none'; showToast('บันทึกการตั้งค่าคลาวด์แล้ว'); cloudSyncReady = false; safeInitialCloudCheck(); });
-$('cloudPullBtn').addEventListener('click', async ()=>{
-  const key = $('cloudApiKey').value.trim(); const bin = $('cloudBinId').value.trim(); if(!key || !bin) { customAlert('กรุณาใส่ API Key และ Bin ID ก่อนครับ'); return; }
-  customConfirm('คำเตือน: ข้อมูลในเครื่องนี้จะถูก "ทับ" ด้วยข้อมูลจากคลาวด์ทั้งหมด!\nแน่ใจหรือไม่?', async (yes) => {
-      if(!yes) return; $('cloudStatus').textContent = 'กำลังดึงข้อมูล... ☁️';
-      try {
-          const res = await fetch(`https://api.jsonbin.io/v3/b/${bin}/latest`, { headers: { 'X-Master-Key': key } });
-          if(res.ok) {
-              const data = await res.json(); const rec = data.record;
-              if(rec.transactions) transactions = rec.transactions; if(rec.recurring) recurring = rec.recurring; if(rec.wishlist) wishlist = rec.wishlist;
-              if(rec.monthlyBudget !== undefined) monthlyBudget = rec.monthlyBudget; if(rec.customDailyBudget !== undefined) customDailyBudget = rec.customDailyBudget;
-              if(rec.customCats) { customCats = rec.customCats; localStorage.setItem(CATS_STORAGE_KEY, JSON.stringify(customCats)); }
-              if(rec.userExp !== undefined) userExp = rec.userExp;
-              if(rec.plannerNote !== undefined) { localStorage.setItem(PLANNER_NOTE_KEY, String(rec.plannerNote || '')); if($('plannerNote')) $('plannerNote').value = String(rec.plannerNote || ''); }
-              saveTransactions(); saveRecurring(); saveBudget(); saveWishlist(); saveExp(); await persistStateNow(); loadAll(); render(); $('cloudSyncOverlay').style.display = 'none'; showToast('✓ ดึงข้อมูลและอัปเดตเรียบร้อย!');
-          } else { customAlert('ไม่สามารถดึงข้อมูลได้ โปรดเช็ค Key/Bin ID'); }
-      } catch(e) { customAlert('การเชื่อมต่อล้มเหลว'); } $('cloudStatus').textContent = '';
+$('cloudBtnOpen').addEventListener('click',()=>{
+  $('cloudApiKey').value=localStorage.getItem('cloud_api_key')||'';
+  $('cloudBinId').value=localStorage.getItem('cloud_bin_id')||'';
+  $('cloudSyncOverlay').style.display='flex';
+});
+$('cloudSaveSetupBtn').addEventListener('click',()=>{
+  const key=$('cloudApiKey').value.trim(), bin=$('cloudBinId').value.trim();
+  if(key) localStorage.setItem('cloud_api_key',key); else localStorage.removeItem('cloud_api_key');
+  if(bin) localStorage.setItem('cloud_bin_id',bin); else localStorage.removeItem('cloud_bin_id');
+  $('cloudSyncOverlay').style.display='none'; showToast('บันทึกการตั้งค่าคลาวด์แล้ว');
+  cloudSyncReady=false; clearCloudConflict(); safeInitialCloudCheck();
+});
+$('cloudPullBtn').addEventListener('click',async ()=>{
+  const key=$('cloudApiKey').value.trim(), bin=$('cloudBinId').value.trim();
+  if(!key||!bin){ customAlert('กรุณาใส่ API Key และ Bin ID ให้ครบ'); return; }
+  customConfirm('คำเตือน: ข้อมูลจากคลาวด์จะถูกดึงมาแทนข้อมูลในเครื่อง!\nดำเนินการต่อ?',async yes=>{
+    if(!yes) return; setCloudStatus('กำลังดึงข้อมูล... ☁️'); cloudSyncPaused=true;
+    try{
+      const {record:rec}=await fetchLatestCloudRecord(key,bin);
+      if(rec.transactions) transactions=rec.transactions; if(rec.recurring) recurring=rec.recurring; if(rec.wishlist) wishlist=rec.wishlist;
+      if(rec.monthlyBudget!==undefined) monthlyBudget=rec.monthlyBudget; if(rec.customDailyBudget!==undefined) customDailyBudget=rec.customDailyBudget;
+      if(rec.customCats){ customCats=rec.customCats; localStorage.setItem(CATS_STORAGE_KEY,JSON.stringify(customCats)); }
+      if(rec.userExp!==undefined) userExp=rec.userExp;
+      if(rec.plannerNote!==undefined){ localStorage.setItem(PLANNER_NOTE_KEY,String(rec.plannerNote||'')); if($('plannerNote')) $('plannerNote').value=String(rec.plannerNote||''); }
+      setKnownCloudState(bin,cloudRevisionFromRecord(rec),cloudWriteIdFromRecord(rec)); clearCloudConflict();
+      saveTransactions(); saveRecurring(); saveBudget(); saveWishlist(); saveExp(); await persistStateNow(); loadAll(); render();
+      $('cloudSyncOverlay').style.display='none'; showToast(`☁️ ดึงข้อมูลจากคลาวด์แล้ว • revision ${cloudRevisionFromRecord(rec)}`);
+    }catch(e){ console.error('cloud pull failed',e); customAlert('การเชื่อมต่อล้มเหลว'); setCloudStatus('ดึงข้อมูลไม่สำเร็จ',true); }
+    finally{ cloudSyncPaused=false; }
   });
 });
 
@@ -2052,7 +2119,21 @@ async function startAppData(){
 
 if (localStorage.getItem(PIN_KEY)) { requestPersistentStorage(); showPinScreen('login'); }
 else { startAppData(); }
-if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(err => console.warn('service worker register failed', err)); }); }
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', async () => {
+    const hadController = !!navigator.serviceWorker.controller;
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if(!hadController || refreshing) return;
+      refreshing = true;
+      location.reload();
+    });
+    try {
+      const registration = await navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' });
+      await registration.update();
+    } catch(err) { console.warn('service worker register failed', err); }
+  });
+}
 window.addEventListener('pagehide', () => { if(intentionalWipe) return; try { writeStateSnapshotLocal(buildStateSnapshot()); } catch(e){} });
 document.addEventListener('visibilitychange', () => { if(intentionalWipe) return; if(document.visibilityState === 'hidden') { try { writeStateSnapshotLocal(buildStateSnapshot()); } catch(e){} } });
 </script>
