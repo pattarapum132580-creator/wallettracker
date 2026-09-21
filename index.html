@@ -1153,6 +1153,9 @@ let currentType = 'expense'; let selectedCat = customCats.expense[0]; let curren
 let recurType = 'expense'; let recurSelectedCat = customCats.expense[0]; let currentRecurNw = 'need'; let recurSelectedDays = [1,2,3,4,5,6,0]; 
 let recurViewMode = 'month'; let editingRecurId = null; let pendingSlipDataUrl = null; let removeSlipFlag = false; let categoryWasAutoDetected = false; let currentWishlistTab = 'this_month';
 let userExp = 0;
+let catManagerSource = 'tx';
+let catManagerTypeValue = 'expense';
+let intentionalWipe = false;
 
 // ===== Durable local persistence: localStorage + IndexedDB mirror =====
 const STATE_BACKUP_KEY = 'wallet-state-backup-v2';
@@ -1419,7 +1422,7 @@ function hideSlipPreview(){ $('slipPreviewWrap').style.display = 'none'; $('slip
 function openSlipView(dataUrl){ $('slipViewImg').src = dataUrl; $('slipViewOverlay').style.display = 'flex'; }
 $('closeSlipView').addEventListener('click', ()=>{ $('slipViewOverlay').style.display = 'none'; });
 $('slipPreviewImg').addEventListener('click', ()=> openSlipView($('slipPreviewImg').src));
-$('removeSlipBtn').addEventListener('click', ()=>{ pendingSlipDataUrl = null; removeSlipFlag = true; hideSlipPreview(); $('amountInput').value = ''; $('ocrStatus').style.display = 'none'; $('ocrRaw').style.display = 'none'; });
+$('removeSlipBtn').addEventListener('click', ()=>{ pendingSlipDataUrl = null; removeSlipFlag = true; hideSlipPreview(); $('ocrStatus').style.display = 'none'; $('ocrRaw').style.display = 'none'; });
 
 async function renderGallery() {
   const grid = $('galleryGrid'); grid.innerHTML = '<div style="grid-column: span 3; text-align:center; color:var(--text-dim); padding: 20px;">กำลังโหลด...</div>';
@@ -1735,7 +1738,7 @@ function processRecurSave() {
 $('recurSaveBtn').addEventListener('click', processRecurSave); $('recurSaveEditBtn').addEventListener('click', processRecurSave); $('recurViewModeBtn').addEventListener('click', () => { vibe(); recurViewMode = (recurViewMode === 'month') ? 'week' : 'month'; renderRecurring(); });
 
 function renderCatManager() {
-  const list = $('catEditList'); list.innerHTML = ''; const currentArr = recurType === 'expense' ? customCats.expense : customCats.income;
+  const list = $('catEditList'); list.innerHTML = ''; const currentArr = catManagerTypeValue === 'expense' ? customCats.expense : customCats.income;
   currentArr.forEach(cat => {
      const li = document.createElement('li'); li.className = 'tx-row';
      li.innerHTML = `
@@ -1745,21 +1748,21 @@ function renderCatManager() {
      li.querySelector('.tx-del').addEventListener('click', () => {
         if(currentArr.length <= 1) { showToast('ต้องมีอย่างน้อย 1 หมวดหมู่'); return; }
         customConfirm(`ต้องการลบหมวด "${cat}" ใช่หรือไม่?`, (yes) => {
-            if(yes) { if(recurType === 'expense') customCats.expense = customCats.expense.filter(c => c !== cat); else customCats.income = customCats.income.filter(c => c !== cat); saveCats(); renderCatManager(); setType(recurType); }
+            if(yes) { if(catManagerTypeValue === 'expense') customCats.expense = customCats.expense.filter(c => c !== cat); else customCats.income = customCats.income.filter(c => c !== cat); saveCats(); renderCatManager(); if(catManagerSource === 'recur') setRecurType(recurType); else setType(currentType); }
         });
      });
      list.appendChild(li);
   });
 }
-$('editCatBtn').addEventListener('click', () => { vibe(); $('catManagerType').textContent = (currentType === 'expense' ? '(รายจ่าย)' : '(รายรับ)'); recurType = currentType; renderCatManager(); $('catManagerOverlay').style.display = 'flex'; });
-$('editRecurCatBtn').addEventListener('click', () => { vibe(); $('catManagerType').textContent = (recurType === 'expense' ? '(รายจ่าย)' : '(รายรับ)'); renderCatManager(); $('catManagerOverlay').style.display = 'flex'; });
+$('editCatBtn').addEventListener('click', () => { vibe(); catManagerSource = 'tx'; catManagerTypeValue = currentType; $('catManagerType').textContent = (catManagerTypeValue === 'expense' ? '(รายจ่าย)' : '(รายรับ)'); renderCatManager(); $('catManagerOverlay').style.display = 'flex'; });
+$('editRecurCatBtn').addEventListener('click', () => { vibe(); catManagerSource = 'recur'; catManagerTypeValue = recurType; $('catManagerType').textContent = (catManagerTypeValue === 'expense' ? '(รายจ่าย)' : '(รายรับ)'); renderCatManager(); $('catManagerOverlay').style.display = 'flex'; });
 $('addNewCatBtn').addEventListener('click', () => {
   vibe(); const name = $('newCatName').value.trim(); let emoji = $('newCatEmoji').value.trim();
   if(!name) { showToast('กรุณากรอกชื่อหมวดหมู่'); return; } if(!emoji) emoji = '📌';
-  const currentArr = recurType === 'expense' ? customCats.expense : customCats.income;
+  const currentArr = catManagerTypeValue === 'expense' ? customCats.expense : customCats.income;
   if(currentArr.includes(name)) { showToast('ชื่อหมวดหมู่นี้มีอยู่แล้ว'); return; }
   currentArr.push(name); customCats.emojiMap[name] = `${emoji} ${name}`; saveCats();
-  $('newCatName').value = ''; $('newCatEmoji').value = ''; renderCatManager(); setType(recurType); showToast('เพิ่มหมวดหมู่สำเร็จ!');
+  $('newCatName').value = ''; $('newCatEmoji').value = ''; renderCatManager(); if(catManagerSource === 'recur') setRecurType(recurType); else setType(currentType); showToast('เพิ่มหมวดหมู่สำเร็จ!');
 });
 
 function renderMonths(){
@@ -1833,8 +1836,8 @@ function renderSearch(query) {
 
 $('wipeDataBtn').addEventListener('click', async ()=>{
   vibe([50, 50]); customConfirm('🚨 คำเตือนระดับแดง!\nข้อมูลทั้งหมด (รายรับ-รายจ่าย, สลิป, งบประมาณ) จะหายวับไปกับตา!\n\nแน่ใจหรือไม่ที่จะล้างข้อมูล?', (yes) => {
-      if(yes) { customConfirm('ถามย้ำครั้งสุดท้าย! ข้อมูลกู้ไม่ได้แล้วนะถ้าไม่ได้สำรองไว้! แน่ใจนะ?', (yes2) => {
-              if(yes2) { localStorage.clear(); idbClearState(); try{ openSlipDB().then(db => { const tx = db.transaction(SLIP_STORE, 'readwrite'); tx.objectStore(SLIP_STORE).clear(); }); }catch(e){} showToast('💥 ล้างข้อมูลในเครื่องเรียบร้อย!'); setTimeout(()=>location.reload(), 1500); }
+      if(yes) { customConfirm('ถามย้ำครั้งสุดท้าย! ข้อมูลกู้ไม่ได้แล้วนะถ้าไม่ได้สำรองไว้! แน่ใจนะ?', async (yes2) => {
+              if(yes2) { intentionalWipe = true; transactions = []; recurring = []; wishlist = []; monthlyBudget = null; customDailyBudget = null; userExp = 0; customCats = JSON.parse(JSON.stringify(DEFAULT_CATS)); if($('plannerNote')) $('plannerNote').value = ''; localStorage.clear(); await idbClearState(); try{ const db = await openSlipDB(); await new Promise(resolve => { const tx = db.transaction(SLIP_STORE, 'readwrite'); tx.objectStore(SLIP_STORE).clear(); tx.oncomplete = () => { db.close(); resolve(); }; tx.onerror = () => { db.close(); resolve(); }; }); }catch(e){} showToast('💥 ล้างข้อมูลในเครื่องเรียบร้อย!'); setTimeout(()=>location.reload(), 1500); }
           }); }
   });
 });
@@ -1956,7 +1959,7 @@ $('importFile').addEventListener('change', (e)=>{
       const importedPlannerNote = Array.isArray(imported) ? '' : String(imported.plannerNote || '');
       const importedBudget = Array.isArray(imported) ? null : (imported.monthlyBudget ?? null); 
       const importedDailyBudget = Array.isArray(imported) ? null : (imported.customDailyBudget ?? null); 
-      if(imported.customCats) { customCats = imported.customCats; saveCats(); }
+      const importedCats = Array.isArray(imported) ? null : imported.customCats;
       
       customConfirm(`พบ ${importedTx.length} รายการในไฟล์ ต้องการรวมกับข้อมูลปัจจุบันหรือไม่?`, (yes) => {
           if(yes){
@@ -1967,6 +1970,9 @@ $('importFile').addEventListener('change', (e)=>{
               if(importedBudget && monthlyBudget === null) monthlyBudget = importedBudget; 
               if(importedDailyBudget && customDailyBudget === null) customDailyBudget = importedDailyBudget;
               if(imported.userExp !== undefined && userExp === 0) userExp = imported.userExp;
+              if(importedCats && Array.isArray(importedCats.expense) && Array.isArray(importedCats.income) && importedCats.emojiMap) { customCats = importedCats; saveCats(); }
+              const currentPlannerNote = localStorage.getItem(PLANNER_NOTE_KEY) || '';
+              if(importedPlannerNote.trim() && !currentPlannerNote.trim()) { localStorage.setItem(PLANNER_NOTE_KEY, importedPlannerNote); if($('plannerNote')) $('plannerNote').value = importedPlannerNote; }
               
               saveTransactions(); saveRecurring(); saveBudget(); saveWishlist(); saveExp();
               persistStateNow(); loadAll(); render(); showToast('✓ นำเข้าข้อมูลและจัดระเบียบโครงสร้างสำเร็จ!'); 
@@ -2047,8 +2053,8 @@ async function startAppData(){
 if (localStorage.getItem(PIN_KEY)) { requestPersistentStorage(); showPinScreen('login'); }
 else { startAppData(); }
 if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(err => console.warn('service worker register failed', err)); }); }
-window.addEventListener('pagehide', () => { try { writeStateSnapshotLocal(buildStateSnapshot()); } catch(e){} });
-document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'hidden') { try { writeStateSnapshotLocal(buildStateSnapshot()); } catch(e){} } });
+window.addEventListener('pagehide', () => { if(intentionalWipe) return; try { writeStateSnapshotLocal(buildStateSnapshot()); } catch(e){} });
+document.addEventListener('visibilitychange', () => { if(intentionalWipe) return; if(document.visibilityState === 'hidden') { try { writeStateSnapshotLocal(buildStateSnapshot()); } catch(e){} } });
 </script>
 </body>
 </html>
