@@ -76,6 +76,7 @@
   .lucian-leg-front{ transform-origin:-7px -65px; --stride:-13deg; }
   .lucian-blade-light, .lucian-skill-frame{ opacity:0; }
   .lucian-ready .lucian-travel{ animation:lucian-patrol var(--lucian-cycle) linear infinite; }
+  .lucian-ready .lucian-facing{ animation:lucian-turn var(--lucian-cycle) ease-in-out infinite; }
   .lucian-ready .lucian-idle{ animation:lucian-breathe 4s ease-in-out infinite; }
   .lucian-ready .lucian-leg{ animation:lucian-step var(--lucian-cycle) ease-in-out infinite; }
   .lucian-ready .lucian-eyes{ animation:lucian-blink 6.8s linear infinite; }
@@ -94,13 +95,18 @@
     0%,18%,62%,100%{ transform:translateX(0); }
     38%,42%{ transform:translateX(34px); }
   }
+  @keyframes lucian-turn{
+    0%,38%,65%,100%{ transform:scaleX(1); }
+    41%,62%{ transform:scaleX(-1); }
+  }
   @keyframes lucian-step{
     0%,18%,38%,42%,62%,100%{ transform:rotate(0); }
     20.5%,25.5%,30.5%,35.5%,44.5%,49.5%,54.5%,59.5%{ transform:rotate(var(--stride)); }
     23%,28%,33%,47%,52%,57%{ transform:rotate(calc(-1 * var(--stride))); }
   }
   @keyframes lucian-swing{
-    0%,66%,79%,100%{ transform:rotate(0); }
+    0%,38%,66%,79%,100%{ transform:rotate(0); }
+    41%,62%{ transform:rotate(-58deg); }
     70%{ transform:rotate(-35deg); }
     73%{ transform:rotate(18deg); }
   }
@@ -713,29 +719,31 @@
       <use href="./lucian-cover.svg#scene"></use>
       <g class="lucian-stage" id="lucianStage" transform="translate(643 350) scale(1.5)" style="image-rendering:pixelated">
         <g class="lucian-travel">
-          <g class="lucian-idle">
-            <use href="./lucian-cover.svg#back"></use>
-            <use class="lucian-sword" href="./lucian-cover.svg#sword-back"></use>
-            <use class="lucian-leg lucian-leg-back" href="./lucian-cover.svg#leg-back"></use>
-            <use class="lucian-leg lucian-leg-front" href="./lucian-cover.svg#leg-front"></use>
-            <use href="./lucian-cover.svg#torso"></use>
-            <g class="lucian-head" id="lucianHead">
-              <use href="./lucian-cover.svg#head"></use>
-              <use class="lucian-eyes" href="./lucian-cover.svg#eyes"></use>
-            </g>
-            <use href="./lucian-cover.svg#arms"></use>
-            <g class="lucian-sword">
-              <use href="./lucian-cover.svg#sword-front"></use>
-              <g class="lucian-blade-light">
-                <path d="M 91 -68 H 178" fill="none" stroke="#85ffcf" stroke-width="7" stroke-linecap="round" opacity=".54"></path>
-                <path d="M 91 -68 H 178" fill="none" stroke="#fff6ac" stroke-width="2.4" stroke-linecap="round"></path>
+          <g class="lucian-facing">
+            <g class="lucian-idle">
+              <use href="./lucian-cover.svg#back"></use>
+              <use class="lucian-sword" href="./lucian-cover.svg#sword-back"></use>
+              <use class="lucian-leg lucian-leg-back" href="./lucian-cover.svg#leg-back"></use>
+              <use class="lucian-leg lucian-leg-front" href="./lucian-cover.svg#leg-front"></use>
+              <use href="./lucian-cover.svg#torso"></use>
+              <g class="lucian-head" id="lucianHead">
+                <use href="./lucian-cover.svg#head"></use>
+                <use class="lucian-eyes" href="./lucian-cover.svg#eyes"></use>
               </g>
+              <use href="./lucian-cover.svg#arms"></use>
+              <g class="lucian-sword">
+                <use href="./lucian-cover.svg#sword-front"></use>
+                <g class="lucian-blade-light">
+                  <path d="M 91 -68 H 178" fill="none" stroke="#85ffcf" stroke-width="7" stroke-linecap="round" opacity=".54"></path>
+                  <path d="M 91 -68 H 178" fill="none" stroke="#fff6ac" stroke-width="2.4" stroke-linecap="round"></path>
+                </g>
+              </g>
+              <use class="lucian-skill-frame" style="--frame:0" href="./lucian-cover.svg#skill-1"></use>
+              <use class="lucian-skill-frame" style="--frame:1" href="./lucian-cover.svg#skill-2"></use>
+              <use class="lucian-skill-frame" style="--frame:2" href="./lucian-cover.svg#skill-3"></use>
+              <use class="lucian-skill-frame" style="--frame:3" href="./lucian-cover.svg#skill-4"></use>
+              <use class="lucian-skill-frame" style="--frame:4" href="./lucian-cover.svg#skill-5"></use>
             </g>
-            <use class="lucian-skill-frame" style="--frame:0" href="./lucian-cover.svg#skill-1"></use>
-            <use class="lucian-skill-frame" style="--frame:1" href="./lucian-cover.svg#skill-2"></use>
-            <use class="lucian-skill-frame" style="--frame:2" href="./lucian-cover.svg#skill-3"></use>
-            <use class="lucian-skill-frame" style="--frame:3" href="./lucian-cover.svg#skill-4"></use>
-            <use class="lucian-skill-frame" style="--frame:4" href="./lucian-cover.svg#skill-5"></use>
           </g>
         </g>
       </g>
