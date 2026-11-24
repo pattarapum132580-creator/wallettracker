@@ -59,8 +59,31 @@
     background:linear-gradient(90deg,#0a1a11 0%,rgba(10,26,17,.93) 30%,transparent 66%);
     pointer-events:none;
   }
+  .lucian-trigger{
+    position:absolute; z-index:1; top:10%; bottom:9%; right:3%; width:min(39%, 220px);
+    border:0; border-radius:12px; padding:0; background:transparent; cursor:pointer;
+  }
+  .lucian-idle{ animation:lucian-breathe 4s ease-in-out infinite; }
+  .lucian-head{ transform-box:fill-box; transform-origin:center 85%; }
+  .lucian-head.is-greeting{ animation:lucian-nod .58s ease-in-out; }
+  .lucian-eyes{ transform-box:fill-box; transform-origin:center; animation:lucian-blink 6.8s linear infinite; }
+  .lucian-glint{ opacity:0; stroke-dasharray:16 110; animation:lucian-shine 10s ease-in-out infinite; }
+  @keyframes lucian-breathe{ 50%{ transform:translateY(-2px); } }
+  @keyframes lucian-nod{ 38%{ transform:translateY(3px) rotate(8deg); } 70%{ transform:rotate(-2deg); } }
+  @keyframes lucian-blink{ 92%,96%{ transform:scaleY(1); } 94%{ transform:scaleY(.12); } }
+  @keyframes lucian-shine{
+    0%,84%{ opacity:0; stroke-dashoffset:16; }
+    86%{ opacity:.8; }
+    94%{ opacity:.6; }
+    96%,100%{ opacity:0; stroke-dashoffset:-86; }
+  }
+  @media (prefers-reduced-motion:reduce){
+    .lucian-idle, .lucian-head.is-greeting, .lucian-eyes, .lucian-glint{ animation:none; }
+  }
   .app-cover-content{ position:relative; z-index:1; width:54%; min-width:125px; }
   .app-cover h1{ font-size:clamp(17px, 4vw, 32px); color:var(--gold); margin:0; line-height:1.3; }
+  .app-cover-content{ pointer-events:none; }
+  .app-cover-content .top-actions{ pointer-events:auto; width:max-content; }
   .app-cover .subtitle{ color:var(--text); font-size:clamp(11px, 2.4vw, 14px); margin:5px 0 0; }
   .top-actions{ display:flex; gap:6px; margin-top:12px; }
   .top-actions .icon-btn { padding: 6px 10px; font-size: 14px; border-radius: 10px; background: var(--panel); border: 1px solid var(--border-dim); color: var(--text); cursor: pointer; }
@@ -243,6 +266,14 @@
   .fab:active { transform: scale(0.95) translateY(6px); box-shadow: 0 0 0 var(--gold-dim), 0 2px 5px rgba(244, 208, 63, 0.4); }
 
   .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-50px); background: var(--gold); color: var(--bg-deep); padding: 12px 24px; border-radius: 30px; font-family: var(--font-body); font-weight: bold; font-size: 14px; opacity: 0; pointer-events: none; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 999999; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+  .toast-effect{ display:inline-block; margin-inline-end:7px; }
+  .toast-effect-income{ animation:receipt-coin .45s ease-out; }
+  .toast-effect-expense{
+    border:1px solid currentColor; border-radius:3px; line-height:1; padding:2px 3px;
+    animation:receipt-stamp .34s ease-out;
+  }
+  @keyframes receipt-coin{ 0%{ opacity:0; transform:translateY(12px) rotateY(80deg); } 58%{ transform:translateY(-6px) rotateY(-10deg); } }
+  @keyframes receipt-stamp{ 0%{ opacity:0; transform:scale(1.8) rotate(-12deg); } 70%{ transform:scale(.9) rotate(-7deg); } }
   .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto; }
 
   .overlay{ position: fixed; inset:0; background: rgba(7,14,10,.85); backdrop-filter: blur(4px); display:flex; align-items:flex-end; justify-content:center; z-index: 50; }
@@ -539,7 +570,7 @@
 </head>
 <body>
 
-<div id="toast" class="toast"></div>
+<div id="toast" class="toast" role="status"></div>
 
 <!-- 🎨 Custom Dialog Overlay -->
 <div class="overlay" id="customDialogOverlay" style="display:none; z-index: 99999999;">
@@ -643,7 +674,21 @@
 
 <header id="mainHeader">
   <div class="app-cover">
-    <img class="app-cover-art" src="./lucian-cover.png" alt="ผู้กล้าลูเซียน" width="960" height="400">
+    <svg class="app-cover-art" viewBox="0 0 960 400" width="960" height="400" aria-hidden="true">
+      <use href="./lucian-cover.svg#scene"></use>
+      <g transform="translate(665 350) scale(1.55)" style="image-rendering:pixelated">
+        <g class="lucian-idle">
+          <use href="./lucian-cover.svg#body"></use>
+          <g class="lucian-head" id="lucianHead">
+            <use href="./lucian-cover.svg#head"></use>
+            <use class="lucian-eyes" href="./lucian-cover.svg#eyes"></use>
+          </g>
+          <use href="./lucian-cover.svg#arms"></use>
+          <path class="lucian-glint" d="M 100 -68 H 179" fill="none" stroke="#fff5c7" stroke-width="1.6"></path>
+        </g>
+      </g>
+    </svg>
+    <button class="lucian-trigger" id="lucianTrigger" type="button" aria-label="ทักทายผู้กล้าลูเซียน"></button>
     <div class="app-cover-content">
       <h1>บันทึกเงินพกพา</h1>
       <p class="subtitle">สแกนสลิป หรือกรอกเอง แล้วดูสรุปรายวัน/รายเดือน</p>
@@ -1040,10 +1085,31 @@ function playSound(type) {
   } catch(e) {}
 }
 
-function showToast(msg) {
-  const t = $('toast'); t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+let toastTimer;
+function showToast(msg, transactionType) {
+  const toast = $('toast');
+  toast.textContent = msg;
+  if (transactionType) {
+    const effect = document.createElement('span');
+    effect.className = `toast-effect toast-effect-${transactionType}`;
+    effect.setAttribute('aria-hidden', 'true');
+    effect.textContent = transactionType === 'income' ? '🪙' : '✓';
+    toast.prepend(effect);
+  }
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
 }
+
+$('lucianTrigger').addEventListener('click', () => {
+  const head = $('lucianHead');
+  head.classList.remove('is-greeting');
+  head.getBoundingClientRect();
+  head.classList.add('is-greeting');
+});
+$('lucianHead').addEventListener('animationend', event => {
+  if (event.animationName === 'lucian-nod') event.currentTarget.classList.remove('is-greeting');
+});
 
 function showFloatingText(text, type) {
   const el = document.createElement('div');
@@ -1480,7 +1546,17 @@ function loadAll(){
   if (changed) { saveTransactions(); saveRecurring(); }
 }
 
-function saveTransactions(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(transactions)); scheduleStateMirror(); autoCloudSync(); } catch(e){ customAlert('บันทึกไม่สำเร็จ: พื้นที่เก็บข้อมูลเต็ม'); } }
+function saveTransactions(){
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(transactions));
+  } catch (error) {
+    customAlert('บันทึกไม่สำเร็จ: พื้นที่เก็บข้อมูลเต็ม');
+    return false;
+  }
+  scheduleStateMirror();
+  autoCloudSync();
+  return true;
+}
 function saveRecurring(){ localStorage.setItem(RECUR_KEY, JSON.stringify(recurring)); scheduleStateMirror(); autoCloudSync(); }
 function saveWishlist(){ localStorage.setItem(WISHLIST_KEY, JSON.stringify(wishlist)); scheduleStateMirror(); autoCloudSync(); }
 function saveBudget(){ if(monthlyBudget === null) localStorage.removeItem(BUDGET_KEY); else localStorage.setItem(BUDGET_KEY, String(monthlyBudget)); if(customDailyBudget === null) localStorage.removeItem(DAILY_BUDGET_KEY); else localStorage.setItem(DAILY_BUDGET_KEY, String(customDailyBudget)); scheduleStateMirror(); autoCloudSync(); }
@@ -1889,6 +1965,8 @@ $('saveBtn').addEventListener('click', async ()=>{
   vibe([50, 50, 50]); const amount = parseMoneyInput($('amountInput').value); if(!amount || amount <= 0){ customAlert('กรุณากรอกจำนวนเงินให้ถูกต้อง'); return; }
   const date = $('dateInput').value || todayStr(); const note = $('noteInput').value.trim(); let txId;
   const tagNw = currentType === 'expense' ? currentNw : null;
+  const previous = editingId ? transactions.find(tx => tx.id === editingId) : null;
+  const previousValues = previous && { ...previous };
 
   if(editingId){ 
      txId = editingId; const tx = transactions.find(x=>x.id === editingId); 
@@ -1899,9 +1977,14 @@ $('saveBtn').addEventListener('click', async ()=>{
 }
   
   const tx = transactions.find(x=>x.id === txId); if(pendingSlipDataUrl){ try{ await idbSetSlip(txId, pendingSlipDataUrl); tx.hasSlip = true; }catch(err){ customAlert('บันทึกรูปสลิปไม่สำเร็จ'); } } else if(removeSlipFlag){ try{ await idbDeleteSlip(txId); }catch(err){} tx.hasSlip = false; }
-  saveTransactions(); playSound(currentType); showFloatingText((currentType==='expense'?'-':'+') + fmtMoney(amount), currentType);
+  if (!saveTransactions()) {
+    if (previous) Object.assign(previous, previousValues);
+    else transactions = transactions.filter(tx => tx.id !== txId);
+    return;
+  }
+  playSound(currentType); showFloatingText((currentType==='expense'?'-':'+') + fmtMoney(amount), currentType);
   render(); closeSheet(); 
-  if (date !== todayStr()) { showToast(`✓ บันทึกย้อนหลังวันที่ (${date}) ไปที่แท็บสรุปแล้ว!`); } else { showToast('✓ บันทึกสำเร็จ!'); }
+  showToast(date !== todayStr() ? `บันทึกย้อนหลังวันที่ (${date}) ไปที่แท็บสรุปแล้ว` : 'บันทึกแล้ว', currentType);
   if ($('searchOverlay').style.display === 'flex') { renderSearch($('searchInput').value); }
 });
 

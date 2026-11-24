@@ -1,9 +1,9 @@
 // Wallet Tracker Service Worker
 // Bump APP_CACHE_VERSION whenever the app shell changes.
-const APP_CACHE_VERSION = '2026-11-25.1';
+const APP_CACHE_VERSION = '2026-11-25.2';
 const CACHE_PREFIX = 'wallet-cache-';
 const CACHE_NAME = `${CACHE_PREFIX}${APP_CACHE_VERSION}`;
-const CORE_ASSETS = ['./','./index.html','./manifest.json','./icon-192.png','./icon-512.png','./lucian-cover.png'];
+const CORE_ASSETS = ['./','./index.html','./manifest.json','./icon-192.png','./icon-512.png','./lucian-cover.svg'];
 
 self.addEventListener('install', event => {
   self.skipWaiting();
