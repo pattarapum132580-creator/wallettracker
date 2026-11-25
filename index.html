@@ -181,23 +181,6 @@
   .tx-row-readonly:active{ background: none; }
   .readonly-hint{ font-size: 11px; color: var(--text-dim); padding: 6px 4px 12px; }
   
-  .weather-widget{ margin-bottom: 16px; padding: 12px 14px; }
-  .weather-ask-btn{ width:100%; background:none; border:1px dashed var(--border-dim); color: var(--text-dim); font-size: 12px; padding: 10px; border-radius: 8px; cursor: pointer; font-family: var(--font-body); }
-  .weather-ask-btn:active{ background: var(--panel-light); }
-  .weather-content { display: flex; flex-direction: column; align-items: stretch; width: 100%; gap: 10px; }
-  .weather-main { display: flex; align-items: center; gap: 12px; width: 100%; }
-  .weather-icon{ font-size: 30px; line-height:1; flex-shrink:0; }
-  .weather-info{ min-width:0; flex:1; }
-  .weather-place{ font-size: 11px; color: var(--gold); margin-bottom: 2px; }
-  .weather-temp{ font-size: 15px; font-weight:600; }
-  .weather-error{ font-size: 12px; color: var(--text-dim); text-align:center; padding: 4px; }
-  .hourly-forecast { display: flex; gap: 14px; overflow-x: auto; width: 100%; padding: 10px 0 4px; border-top: 1px dashed var(--border-dim); -webkit-overflow-scrolling: touch; }
-  .hourly-forecast::-webkit-scrollbar { height: 4px; }
-  .hourly-forecast::-webkit-scrollbar-thumb { background: var(--border-dim); border-radius: 4px; }
-  .hourly-item { display: flex; flex-direction: column; align-items: center; min-width: 42px; gap: 6px; }
-  .h-time { font-size: 11px; color: var(--text-dim); }
-  .h-icon { font-size: 18px; line-height: 1; }
-  .h-temp { font-size: 12px; font-weight: 600; color: var(--text); }
   .h-rain { font-size: 10px; color: var(--text-dim); }
   .h-rain.wet { color: #6ec6ff; font-weight: bold; text-shadow: 0 0 6px rgba(110, 198, 255, 0.4); }
 
@@ -321,6 +304,29 @@
   @keyframes pixelPopup { 0% { transform: scale(0.9) translateY(20px); opacity: 0; } 50% { transform: scale(1.02) translateY(-5px); opacity: 1; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
   .sheet{ width:100%; max-width: 480px; background: var(--panel); border-top-left-radius: 24px; border-top-right-radius: 24px; border-top: 1px solid var(--border-dim); padding: 24px 20px 30px; max-height: 90vh; overflow-y:auto; position:relative; box-shadow: 0 -10px 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; animation: pixelPopup 0.3s steps(5, end) forwards; }
   
+  .wallet-data .sheet{ max-width:560px; }
+  .wallet-data h2.sheet-title{ font-family:var(--font-body); font-size:17px; line-height:1.35; margin:0 40px 14px 0; }
+  .wallet-data .sheet button:disabled{ opacity:.5; cursor:default; }
+  .compare-side{ line-height:1.45; }
+  .wallet-data p{ color:var(--text-dim); margin:0 0 12px; font-size:13px; }
+  .backup-links .data-link{
+    background:none; border:0; padding:0; color:inherit; font:inherit; cursor:pointer; text-decoration:underline;
+  }
+  .data-summary,.trash-list{ display:grid; gap:8px; margin:0 0 12px; padding:0; list-style:none; }
+  .data-summary div,.trash-row{ padding:10px 12px; border:1px solid var(--border-dim); border-radius:10px; background:var(--bg-deep); }
+  .data-summary dt{ color:var(--text-dim); font-size:12px; }
+  .data-summary dd{ margin:2px 0 0; font-size:14px; }
+  .trash-row{ display:grid; gap:6px; overflow-wrap:anywhere; }
+  .trash-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+  .trash-actions button{ min-height:36px; }
+  .compare-row{ min-width:0; margin:0 0 12px; border:1px solid var(--border-dim); border-radius:10px; padding:8px; }
+  .compare-row legend{ padding:0 4px; font-size:13px; color:var(--gold); }
+  .compare-choices{ display:grid; gap:6px; grid-template-columns:1fr 1fr; }
+  .compare-side{ display:block; min-width:0; margin:0; border:1px solid var(--border-dim); border-radius:8px; padding:8px; cursor:pointer; }
+  .compare-side:has(input:checked){ border-color:var(--gold); background:var(--panel-light); }
+  .compare-side input{ accent-color:var(--gold); }
+  .compare-side strong{ color:var(--text); }
+  .compare-side span{ display:block; margin-top:4px; white-space:pre-wrap; overflow-wrap:anywhere; }
   .sheet-title{ font-family: var(--font-pixel); font-size:12px; color: var(--gold); margin-bottom:20px; }
   .type-toggle{ display:flex; gap:10px; margin-bottom:18px; }
   .type-btn{ flex:1; padding:12px; text-align:center; font-weight:600; border-radius: 12px; font-size:14px; }
@@ -328,7 +334,7 @@
   .type-btn.active-income{ background: var(--income); border-color: var(--income); color: #000; box-shadow: 0 4px 10px rgba(88,214,141,0.3); }
 
   label{ display:block; font-size:13px; color: var(--text-dim); margin: 16px 0 8px; font-weight:500; }
-  input[type=text], input[type=number], input[type=date], select, textarea{ width:100%; padding:14px; background: var(--bg-deep); border: 1px solid var(--border-dim); border-radius: 12px; color: var(--text); font-family: var(--font-body); font-size:16px; transition: 0.2s; }
+  input[type=text], input[type=password], input[type=number], input[type=date], select, textarea{ width:100%; padding:14px; background: var(--bg-deep); border: 1px solid var(--border-dim); border-radius: 12px; color: var(--text); font-family: var(--font-body); font-size:16px; transition: 0.2s; }
   input:focus, textarea:focus{ border-color: var(--gold); box-shadow: 0 0 0 3px rgba(244, 208, 63, 0.2); outline: none; }
   
   .cat-grid{ display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
@@ -505,8 +511,6 @@
       gap:8px;
       flex-wrap:wrap;
     }
-    .weather-widget{ padding: 10px 12px; }
-    .weather-ask-btn{ font-size:11px; padding:10px 8px; }
     .today-amount{ font-size:22px; }
     .today-income-line,
     .budget-row,
@@ -587,7 +591,7 @@
       padding:20px 16px 24px;
     }
     .sheet-title{ font-size:11px; }
-    input[type=text], input[type=number], input[type=date], select, textarea{
+    input[type=text], input[type=password], input[type=number], input[type=date], select, textarea{
       padding:13px;
       font-size:16px;
     }
@@ -690,11 +694,45 @@
     <input type="password" id="cloudApiKey" placeholder="เช่น $2a$10$xxxx..." autocomplete="off">
     <label>Bin ID (รหัสกล่องเก็บข้อมูล)</label>
     <input type="text" id="cloudBinId" placeholder="เช่น 64a1b2c3d..." autocomplete="off">
-    <div id="cloudStatus" style="font-size:11px; color:var(--gold); margin-top:12px; text-align:center; height: 16px;"></div>
+    <div id="cloudStatus" style="font-size:11px; color:var(--gold); margin-top:12px; text-align:center; min-height: 16px;"></div>
+    <button class="btn btn-secondary" id="cloudCompareBtn" type="button">เปรียบเทียบเครื่องกับคลาวด์</button>
     <div class="btn-row" style="margin-top:16px;">
       <button class="btn btn-secondary" id="cloudPullBtn" style="background:var(--panel-light); border-color:var(--income); color:var(--income);">⬇️ รวมข้อมูลจากคลาวด์</button>
       <button class="btn btn-primary" id="cloudSaveSetupBtn">💾 บันทึกการตั้งค่าคลาวด์</button>
     </div>
+  </div>
+</div>
+
+<div class="overlay wallet-data" id="backupOverlay" role="dialog" aria-modal="true" aria-labelledby="backupTitle" style="display:none; z-index:65;">
+  <div class="sheet">
+    <button class="close-x" type="button" id="closeBackup" aria-label="ปิดสถานะสำรอง">✕</button>
+    <h2 class="sheet-title" id="backupTitle">สถานะสำรองข้อมูล</h2>
+    <dl class="data-summary">
+      <div><dt>ส่งออกบนอุปกรณ์นี้ล่าสุด</dt><dd id="backupLast">ยังไม่มีประวัติการส่งออก</dd></div>
+      <div><dt>ข้อมูลที่พร้อมสำรองตอนนี้</dt><dd id="backupCounts" aria-live="polite">กำลังโหลด…</dd></div>
+    </dl>
+    <p>ไฟล์ JSON รวมรายการ สลิป และข้อมูลในถังขยะที่ยังไม่หมดอายุ</p>
+    <button class="btn btn-primary" id="exportBtn" type="button">ดาวน์โหลดไฟล์สำรอง JSON</button>
+  </div>
+</div>
+<div class="overlay wallet-data" id="trashOverlay" role="dialog" aria-modal="true" aria-labelledby="trashTitle" style="display:none; z-index:65;">
+  <div class="sheet">
+    <button class="close-x" type="button" id="closeTrash" aria-label="ปิดถังขยะ">✕</button>
+    <h2 class="sheet-title" id="trashTitle">ถังขยะ</h2>
+    <p>กู้รายการรายรับ–รายจ่ายพร้อมสลิปในอุปกรณ์นี้ได้ภายใน 30 วัน</p>
+    <div id="trashEmpty" class="empty-note">ไม่มีรายการในถังขยะ</div>
+    <ul id="trashList" class="trash-list"></ul>
+  </div>
+</div>
+<div class="overlay wallet-data" id="compareOverlay" role="dialog" aria-modal="true" aria-labelledby="compareTitle" style="display:none; z-index:65;">
+  <div class="sheet">
+    <button class="close-x" type="button" id="closeCompare" aria-label="ปิดหน้าเปรียบเทียบ">✕</button>
+    <h2 class="sheet-title" id="compareTitle">เปรียบเทียบข้อมูลคลาวด์</h2>
+    <p id="compareStatus" role="status"></p>
+    <form id="compareForm">
+      <div id="compareRows"></div>
+      <button class="btn btn-primary" id="applyCompare" type="submit" disabled>ยืนยันและรวมข้อมูล</button>
+    </form>
   </div>
 </div>
 
@@ -767,11 +805,6 @@
     <div class="reminder-banner-actions">
       <button class="icon-btn" id="reminderDoneBtn">✓ โอนแล้ว</button>
       <button class="icon-btn" id="reminderDismissBtn">ปิด</button>
-    </div>
-  </div>
-  <div class="card pixel-box weather-widget" id="weatherWidget">
-    <div id="weatherContent" class="weather-content">
-      <button class="weather-ask-btn" id="weatherAskBtn">📍 เปิดสิทธิ์ตำแหน่งเพื่อดูสภาพอากาศ</button>
     </div>
   </div>
 </div>
@@ -867,10 +900,11 @@
   <div class="section-title">
     <span>สรุปรายเดือน</span>
     <span class="backup-links">
-      <span id="cloudBtnOpen" style="color:#5dade2; font-weight:bold;">☁️ คลาวด์ซิงค์</span>
+      <button class="data-link" id="cloudBtnOpen" type="button" style="color:#5dade2; font-weight:bold;">☁️ คลาวด์ซิงค์</button>
       <span id="wrappedBtn" style="color:var(--gold); font-weight:bold;">🎉 สรุปรายปี</span>
       <span id="exportCsvBtn" title="เปิดใน Excel">📊 Excel</span>
-      <span id="exportBtn">📥 สำรอง</span>
+      <button class="data-link" id="backupStatusBtn" type="button">📥 สำรองข้อมูล</button>
+      <button class="data-link" id="trashBtn" type="button">🗑️ ถังขยะ</button>
       <span id="importBtn">📤 กู้คืน</span>
       <span id="wipeDataBtn" style="color:var(--expense);">🗑️ ล้างแอป</span>
     </span>
@@ -1275,6 +1309,10 @@ const STATE_DB_NAME = 'wallet-state-db-v2';
 const STATE_DB_STORE = 'state';
 const WALLET_SLIP_STORE = 'receipts';
 const COLLECTIONS = ['transactions', 'recurring', 'wishlist'];
+const TRASH_DAYS = 30;
+const DAY_MS = 86400000;
+const TRASH_RETENTION = TRASH_DAYS * DAY_MS;
+const BACKUP_STATUS_KEY = 'lastExport';
 const ALL_DAYS = [1,2,3,4,5,6,0];
 let wallet;
 let walletWrites = Promise.resolve();
@@ -1332,7 +1370,20 @@ function normalizeWallet(snapshot = {}){
     emojiMap: { ...DEFAULT_CATS.emojiMap, ...Object.fromEntries(Object.entries(cats?.emojiMap || {}).filter(([, label]) => typeof label === 'string')) }
   };
   result.plannerNote = typeof snapshot.plannerNote === 'string' ? snapshot.plannerNote : '';
-  result.deleted = Object.fromEntries(COLLECTIONS.map(field => [field, Array.isArray(snapshot.deleted?.[field]) ? [...new Set(snapshot.deleted[field].map(String))] : []]));
+  for (const key of ['deleted','restored']) {
+    result[key] = Object.fromEntries(COLLECTIONS.map(field => [field, Array.isArray(snapshot[key]?.[field]) ? [...new Set(snapshot[key][field].map(String))] : []]));
+  }
+  const activeIds = new Set(result.transactions.map(row => row.id));
+  const trashEntries = new Map();
+  for (const entry of Array.isArray(snapshot.trash) ? snapshot.trash : []) {
+    if (!entry?.row?.id || !Number.isFinite(+new Date(entry.deletedAt + TRASH_RETENTION))) continue;
+    const id = String(entry.row.id);
+    if (!activeIds.has(id) && !trashEntries.has(id)) trashEntries.set(id,entry);
+  }
+  result.trash = trashEntries.size
+    ? normalizeWallet({transactions:[...trashEntries.values()].map(entry => entry.row)}).transactions
+      .map(row => ({row, deletedAt:trashEntries.get(row.id).deletedAt}))
+    : [];
   return result;
 }
 function snapshotHasUserData(s){
@@ -1385,7 +1436,10 @@ async function idbCommitWallet(expected, snapshot, receipts = {}){
         return;
       }
       state.put(snapshot, 'latest');
-      if (receipts.clear) slips.clear();
+      if (receipts.clear) {
+        slips.clear();
+        state.delete(BACKUP_STATUS_KEY);
+      }
       for (const id of receipts.remove || []) slips.delete(id);
       for (const {id, dataUrl} of receipts.put || []) slips.put(dataUrl, id);
     };
@@ -1495,7 +1549,30 @@ function removeWalletRow(snapshot, field, id){
   if (!snapshot[field].some(row => row.id === id)) return false;
   snapshot[field] = snapshot[field].filter(row => row.id !== id);
   if (!snapshot.deleted[field].includes(id)) snapshot.deleted[field].push(id);
+  snapshot.restored[field] = snapshot.restored[field].filter(restoredId => restoredId !== id);
   return true;
+}
+function recordWalletRestore(snapshot,field,id){
+  snapshot.deleted[field] = snapshot.deleted[field].filter(deletedId => deletedId !== id);
+  if (!snapshot.restored[field].includes(id)) snapshot.restored[field].push(id);
+}
+function moveTransactionToTrash(snapshot,id){
+  const row = snapshot.transactions.find(tx => tx.id === id);
+  if (!row || !removeWalletRow(snapshot,'transactions',id)) return false;
+  snapshot.trash.push({row,deletedAt:Date.now()});
+  return true;
+}
+function isTrashExpired(entry, now = Date.now()){
+  return entry.deletedAt + TRASH_RETENTION <= now;
+}
+function removeExpiredTrash(){
+  if (!wallet?.trash.some(entry => isTrashExpired(entry))) return Promise.resolve(true);
+  return changeWallet((next,receipts) => {
+    const expired = next.trash.filter(entry => isTrashExpired(entry));
+    if (!expired.length) return false;
+    next.trash = next.trash.filter(entry => !expired.includes(entry));
+    receipts.remove.push(...expired.map(entry => entry.row.id));
+  }, {skipCloud:true});
 }
 async function requestPersistentStorage(){
   try { if (navigator.storage?.persist) await navigator.storage.persist(); } catch {}
@@ -1519,6 +1596,11 @@ function validatedBackup(value, allowPlaceholder = false){
       !/^data:image\/(?:png|jpeg|webp|gif);base64,[A-Za-z0-9+/]+={0,2}$/i.test(slip.dataUrl)))) {
     throw new Error('invalid receipts');
   }
+  if (source.trash !== undefined && (!Array.isArray(source.trash) || source.trash.some(entry =>
+      !entry || !Number.isFinite(entry.deletedAt) || !Number.isFinite(+new Date(entry.deletedAt + TRASH_RETENTION)) ||
+      !entry.row?.id || !['string','number'].includes(typeof entry.row.id)))) {
+    throw new Error('invalid trash');
+  }
   return normalizeWallet(source);
 }
 function walletRowsEqual(a,b){
@@ -1537,10 +1619,10 @@ function mergeWallet(target, source, fromCloud){
         if (fromCloud && !walletRowsEqual(existing,item)) conflict = true;
         continue;
       }
-      if (fromCloud && deleted.has(item.id)) continue;
+      if (fromCloud && deleted.has(item.id)) { conflict = true; continue; }
       target[field].push(item);
       seen.set(item.id,item);
-      deleted.delete(item.id);
+      if (deleted.delete(item.id)) recordWalletRestore(target,field,item.id);
     }
     for (const id of source.deleted[field]) {
       if (!seen.has(id)) deleted.add(id);
@@ -1551,6 +1633,17 @@ function mergeWallet(target, source, fromCloud){
   for (const field of ['monthlyBudget', 'customDailyBudget', 'plannerNote']) {
     if (fromCloud && target[field] && source[field] && target[field] !== source[field]) conflict = true;
     else if (!target[field]) target[field] = source[field];
+  }
+  if (!fromCloud) {
+    const active = new Set(target.transactions.map(row => row.id));
+    target.trash = target.trash.filter(entry => !active.has(entry.row.id));
+    const trashed = new Set(target.trash.map(entry => entry.row.id));
+    for (const entry of source.trash) {
+      const id = entry.row.id;
+      if (active.has(id) || trashed.has(id) || isTrashExpired(entry)) continue;
+      target.trash.push(entry);
+      trashed.add(id);
+    }
   }
   if (source.hasCategoryData) {
     for (const type of ['expense','income']) {
@@ -1617,12 +1710,18 @@ async function fetchLatestCloudRecord(key, bin){
   }
   return record;
 }
-async function mergeCloudRecord(record){
+async function mergeCloudRecord(record,reviewConflicts = false){
   const incoming = validatedBackup(record, true);
   incoming.hasCategoryData = !!record.customCats;
   if (!snapshotHasUserData(record) && !COLLECTIONS.some(field => incoming.deleted[field].length)) return {saved:true, conflict:false};
   let conflict = false;
-  const saved = await changeWallet(next => { conflict = mergeWallet(next, incoming, true); }, {skipCloud:true, updateNote:true});
+  const saved = await changeWallet(next => {
+    if (reviewConflicts && cloudDifferences(next,incoming,record).length) {
+      conflict = true;
+      return false;
+    }
+    conflict = mergeWallet(next,incoming,true);
+  }, {skipCloud:true,updateNote:true});
   return {saved, conflict};
 }
 async function safeInitialCloudCheck(){
@@ -1655,14 +1754,14 @@ async function safeInitialCloudCheck(){
   }
 }
 function autoCloudSync(){
-  if (!cloudSyncReady || cloudConflictBlocked || intentionalWipe) return;
+  if (!cloudSyncReady || cloudConflictBlocked || intentionalWipe || $('compareOverlay').style.display === 'flex') return;
   const {key,bin} = cloudSettings();
   if (!key || !bin) return;
   clearTimeout(cloudSyncTimer);
   cloudSyncTimer = setTimeout(runCloudSync,1200);
 }
 async function runCloudSync(){
-  if (!cloudSyncReady || cloudConflictBlocked || intentionalWipe) return;
+  if (!cloudSyncReady || cloudConflictBlocked || intentionalWipe || $('compareOverlay').style.display === 'flex') return;
   const {key,bin} = cloudSettings();
   if (!key || !bin) return;
   if (cloudSyncInFlight) { cloudSyncPending = true; return; }
@@ -1683,12 +1782,13 @@ async function runCloudSync(){
     const normalizedRemote = validatedBackup(remote,true);
     const local = await idbGetState();
     if (!local?.walletWriteId || local.walletWriteId !== wallet.walletWriteId) return;
-    if (generation !== cloudGeneration || intentionalWipe) return;
+    if (generation !== cloudGeneration || intentionalWipe || $('compareOverlay').style.display === 'flex') return;
     for (const field of COLLECTIONS) {
       const localIds = new Set(local[field].map(item => item.id));
       const deleted = new Set(local.deleted[field]);
+      const restored = new Set(local.restored?.[field]);
       if (normalizedRemote[field].some(item => !localIds.has(item.id) && !deleted.has(item.id)) ||
-          normalizedRemote.deleted[field].some(id => localIds.has(id))) {
+          normalizedRemote.deleted[field].some(id => localIds.has(id) && !restored.has(id))) {
         markCloudConflict('พบรายการต่างกัน ระบบหยุดเขียนคลาวด์เพื่อเก็บข้อมูลทั้งสองฝั่ง');
         return;
       }
@@ -1697,7 +1797,10 @@ async function runCloudSync(){
       transactions:local.transactions, recurring:local.recurring, wishlist:local.wishlist,
       monthlyBudget:local.monthlyBudget, customDailyBudget:local.customDailyBudget,
       customCats:local.customCats, plannerNote:local.plannerNote,
-      deleted:Object.fromEntries(COLLECTIONS.map(field => [field,[...new Set([...local.deleted[field],...normalizedRemote.deleted[field]])]])),
+      deleted:Object.fromEntries(COLLECTIONS.map(field => {
+        const active = new Set(local[field].map(row => row.id));
+        return [field,[...new Set([...local.deleted[field],...normalizedRemote.deleted[field]])].filter(id => !active.has(id))];
+      })),
       savedAt:Date.now(), version:4, revision:cloudRevision(remote)+1, writeId:crypto.randomUUID()
     };
     const relevant = ['transactions','recurring','wishlist','monthlyBudget','customDailyBudget','customCats','plannerNote','deleted'];
@@ -1755,13 +1858,15 @@ $('cloudPullBtn').addEventListener('click', () => {
     try {
       const record = await fetchLatestCloudRecord(key,bin);
       if (generation !== cloudGeneration || intentionalWipe) return;
-      const {saved,conflict} = await mergeCloudRecord(record);
-      if (!saved || generation !== cloudGeneration) return;
-      render();
+      const {saved,conflict} = await mergeCloudRecord(record,true);
+      if (generation !== cloudGeneration) return;
       if (conflict) {
-        markCloudConflict('เพิ่มรายการที่ขาดแล้ว พบรายการที่แก้ต่างกัน ระบบเก็บแต่ละฉบับไว้และหยุดซิงก์');
+        markCloudConflict('พบรายการต่างกัน กรุณาเปรียบเทียบก่อนซิงก์');
+        await openCloudReview(key,bin);
         return;
       }
+      if (!saved) return;
+      render();
       saveCloudSettings(key,bin);
       await setKnownCloudState(bin,record);
       cloudConflictBlocked = false;
@@ -1775,6 +1880,203 @@ $('cloudPullBtn').addEventListener('click', () => {
       setCloudStatus('ดึงข้อมูลไม่สำเร็จ',true);
     }
   });
+});
+
+const CLOUD_LABELS = {
+  transactions:'รายรับ–รายจ่าย', recurring:'รายการประจำ', wishlist:'เป้าหมาย',
+  monthlyBudget:'งบรายเดือน', customDailyBudget:'งบรายวัน', plannerNote:'โน้ต', customCats:'หมวดหมู่'
+};
+let cloudReview;
+let reviewRequest = 0;
+
+function cloudDifferences(local, remote, raw){
+  const changes = [];
+  for (const field of COLLECTIONS) {
+    const localRows = new Map(local[field].map(row => [row.id,row]));
+    const remoteRows = new Map(remote[field].map(row => [row.id,row]));
+    const localDeleted = new Set(local.deleted[field]);
+    const remoteDeleted = new Set(remote.deleted[field]);
+    for (const id of new Set([...localRows.keys(), ...remoteRows.keys()])) {
+      const left = localRows.get(id), right = remoteRows.get(id);
+      if ((left && right && !walletRowsEqual(left,right)) ||
+          (left && !right && remoteDeleted.has(id)) ||
+          (!left && right && localDeleted.has(id))) {
+        changes.push({field,id,left,right});
+      }
+    }
+  }
+  for (const field of ['monthlyBudget','customDailyBudget','plannerNote','customCats']) {
+    if (Object.hasOwn(raw,field) && JSON.stringify(local[field]) !== JSON.stringify(remote[field])) {
+      changes.push({field,left:local[field],right:remote[field]});
+    }
+  }
+  return changes;
+}
+function describeCloudValue(field,value){
+  if (COLLECTIONS.includes(field)) {
+    if (!value) return 'ลบรายการแล้ว';
+    if (field === 'wishlist') {
+      return [value.name,fmtMoney(value.price),value.targetMonth === 'next_month' ? 'เดือนหน้า' : 'เดือนนี้'].join('\n');
+    }
+    const days = ['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
+    const tag = value.nw === 'need' ? 'จำเป็น' : value.nw === 'want' ? 'อยากได้' : '';
+    return [
+      (value.type === 'income' ? 'รายรับ ' : 'รายจ่าย ') + fmtMoney(value.amount),
+      value.date || value.days?.map(day => days[day]).join(', '),
+      value.category, tag, value.note
+    ].filter(Boolean).join('\n');
+  }
+  if (field === 'customCats') {
+    const names = type => value[type].map(name => Object.hasOwn(value.emojiMap,name) ? value.emojiMap[name] : name).join(', ');
+    return 'รายจ่าย ' + names('expense') + '\nรายรับ ' + names('income');
+  }
+  if (field === 'plannerNote') return value || 'ไม่มีโน้ต';
+  return value === null ? 'ยังไม่ได้ตั้งงบ' : fmtMoney(value);
+}
+function renderCloudReview(review){
+  const rows = $('compareRows');
+  rows.replaceChildren();
+  $('compareStatus').textContent = review.changes.length
+    ? `พบ ${review.changes.length} จุดที่ต่างกัน เลือกฉบับที่ต้องการเก็บในแต่ละข้อ`
+    : 'ไม่มีรายการที่ต้องเลือก ระบบจะรวมรายการที่ขาดจากคลาวด์ให้';
+  review.changes.forEach((change,index) => {
+    const group = document.createElement('fieldset');
+    group.className = 'compare-row';
+    const legend = document.createElement('legend');
+    legend.textContent = CLOUD_LABELS[change.field] + (change.id ? ' · ' + (change.left?.category || change.right?.category || change.left?.name || change.right?.name || '') : '');
+    group.append(legend);
+    const choices = document.createElement('div');
+    choices.className = 'compare-choices';
+    for (const [side,label] of [['left','ในเครื่อง'],['right','บนคลาวด์']]) {
+      const option = document.createElement('label');
+      option.className = 'compare-side';
+      const input = document.createElement('input');
+      input.type = 'radio';
+      input.name = 'cloud-choice-' + index;
+      input.value = side;
+      input.required = true;
+      const heading = document.createElement('strong');
+      heading.textContent = label;
+      const description = document.createElement('span');
+      description.textContent = describeCloudValue(change.field,change[side]);
+      option.append(input,heading,description);
+      choices.append(option);
+    }
+    group.append(choices);
+    rows.append(group);
+  });
+  $('applyCompare').disabled = review.changes.length > 0;
+}
+async function openCloudReview(key,bin){
+  if (!key || !bin) { customAlert('กรุณาใส่ API Key และ Bin ID ให้ครบ'); return; }
+  const request = ++reviewRequest;
+  cloudReview = null;
+  $('compareRows').replaceChildren();
+  $('compareStatus').textContent = 'กำลังอ่านข้อมูลล่าสุดจากคลาวด์…';
+  $('applyCompare').disabled = true;
+  $('compareOverlay').style.display = 'flex';
+  $('closeCompare').focus();
+  try {
+    await walletWrites;
+    const raw = await fetchLatestCloudRecord(key,bin);
+    const cloud = validatedBackup(raw,true);
+    cloud.hasCategoryData = !!raw.customCats;
+    const local = await idbGetState();
+    if (request !== reviewRequest) return;
+    if (!local?.walletWriteId || intentionalWipe) throw new Error('no local wallet');
+    if (local.walletWriteId !== wallet?.walletWriteId) { applyWallet(normalizeWallet(local),true); render(); }
+    cloudReview = {key,bin,raw,cloud,writeId:local.walletWriteId,changes:cloudDifferences(wallet,cloud,raw)};
+    renderCloudReview(cloudReview);
+  } catch {
+    if (request === reviewRequest) $('compareStatus').textContent = 'อ่านข้อมูลไม่สำเร็จ ตรวจการตั้งค่าคลาวด์แล้วเปิดเปรียบเทียบอีกครั้ง';
+  }
+}
+function applyCloudChoice(next,change,side){
+  const {field,id,left,right} = change;
+  if (!id) {
+    next[field] = change[side];
+    return;
+  }
+  if (side === 'left') {
+    if (left && !right) recordWalletRestore(next,field,id);
+    return;
+  }
+  if (!right) {
+    if (field === 'transactions') moveTransactionToTrash(next,id);
+    else removeWalletRow(next,field,id);
+    return;
+  }
+  const index = next[field].findIndex(row => row.id === id);
+  const row = {...right};
+  if (field === 'transactions') {
+    const trashed = next.trash.find(entry => entry.row.id === id);
+    if (left?.hasSlip || trashed?.row.hasSlip) row.hasSlip = true;
+    next.trash = next.trash.filter(entry => entry.row.id !== id);
+  }
+  if (index < 0) next[field].push(row);
+  else next[field][index] = row;
+  if (next.deleted[field].includes(id)) recordWalletRestore(next,field,id);
+}
+$('cloudCompareBtn').addEventListener('click', () =>
+  openCloudReview($('cloudApiKey').value.trim(),$('cloudBinId').value.trim()));
+$('closeCompare').addEventListener('click', () => {
+  reviewRequest++;
+  cloudReview = null;
+  $('compareOverlay').style.display = 'none';
+  $('cloudCompareBtn').focus();
+  autoCloudSync();
+});
+$('compareForm').addEventListener('change', () => {
+  const checked = $('compareRows').querySelectorAll('input:checked').length;
+  $('applyCompare').disabled = !cloudReview || checked !== cloudReview.changes.length;
+});
+$('compareForm').addEventListener('submit', async event => {
+  event.preventDefault();
+  const review = cloudReview;
+  const button = $('applyCompare');
+  if (!review || button.disabled) return;
+  const choices = [...$('compareRows').querySelectorAll('input:checked')].map(input => input.value);
+  if (choices.length !== review.changes.length) return;
+  const request = reviewRequest;
+  button.disabled = true;
+  clearTimeout(cloudSyncTimer);
+  cloudSyncReady = false;
+  const generation = ++cloudGeneration;
+  $('compareStatus').textContent = 'กำลังตรวจข้อมูลล่าสุดก่อนบันทึก…';
+  try {
+    const remote = await fetchLatestCloudRecord(review.key,review.bin);
+    if (request !== reviewRequest || generation !== cloudGeneration) return;
+    if (wallet.walletWriteId !== review.writeId || JSON.stringify(remote) !== JSON.stringify(review.raw)) {
+      await openCloudReview(review.key,review.bin);
+      $('compareStatus').textContent = 'ข้อมูลเปลี่ยนระหว่างเลือก กรุณาตรวจฉบับล่าสุดอีกครั้ง';
+      return;
+    }
+    const saved = await changeWallet(next => {
+      if (request !== reviewRequest || wallet.walletWriteId !== review.writeId) return false;
+      mergeWallet(next,review.cloud,true);
+      review.changes.forEach((change,index) => applyCloudChoice(next,change,choices[index]));
+    }, {skipCloud:true,updateNote:true});
+    if (!saved) {
+      if (request === reviewRequest) await openCloudReview(review.key,review.bin);
+      return;
+    }
+    saveCloudSettings(review.key,review.bin);
+    await setKnownCloudState(review.bin,remote);
+    cloudConflictBlocked = false;
+    cloudSyncReady = true;
+    cloudReview = null;
+    $('compareOverlay').style.display = 'none';
+    $('cloudSyncOverlay').style.display = 'none';
+    $('cloudBtnOpen').focus();
+    render();
+    showToast('รวมข้อมูลตามที่เลือกแล้ว');
+    autoCloudSync();
+  } catch {
+    if (request === reviewRequest) {
+      $('compareStatus').textContent = 'ดำเนินการไม่สำเร็จ กรุณาตรวจสถานะคลาวด์อีกครั้ง';
+      button.disabled = false;
+    }
+  }
 });
 
 function parseMoneyInput(value){ return walletMoney(value) ?? 0; }
@@ -1876,14 +2178,20 @@ async function idbGetSlip(id){
 function compressSlipImage(file, maxDim = 1280, quality = 0.72){ return new Promise((resolve, reject)=>{ const reader = new FileReader(); reader.onload = ()=>{ const img = new Image(); img.onload = ()=>{ let w = img.width, h = img.height; if(w > maxDim || h > maxDim){ if(w > h){ h = Math.round(h * maxDim / w); w = maxDim; } else{ w = Math.round(w * maxDim / h); h = maxDim; } } const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h); resolve(canvas.toDataURL('image/jpeg', quality)); }; img.onerror = reject; img.src = reader.result; }; reader.onerror = reject; reader.readAsDataURL(file); }); }
 function showSlipPreview(dataUrl){ $('slipPreviewImg').src = dataUrl; $('slipPreviewWrap').style.display = 'block'; }
 function hideSlipPreview(){ $('slipPreviewWrap').style.display = 'none'; $('slipPreviewImg').src = ''; }
-function openSlipView(dataUrl){ $('slipViewImg').src = dataUrl; $('slipViewOverlay').style.display = 'flex'; }
+function openSlipView(dataUrl, aboveTrash = false){
+  $('slipViewImg').src = dataUrl;
+  const overlay = $('slipViewOverlay');
+  overlay.style.zIndex = aboveTrash ? '66' : '';
+  overlay.style.display = 'flex';
+}
 $('closeSlipView').addEventListener('click', ()=>{ $('slipViewOverlay').style.display = 'none'; });
 $('slipPreviewImg').addEventListener('click', ()=> openSlipView($('slipPreviewImg').src));
 $('removeSlipBtn').addEventListener('click', ()=>{ slipRequest++; slipPreparation = null; pendingSlipDataUrl = null; removeSlipFlag = true; hideSlipPreview(); $('ocrStatus').style.display = 'none'; $('ocrRaw').style.display = 'none'; });
 
 async function renderGallery() {
   const grid = $('galleryGrid'); grid.innerHTML = '<div style="grid-column: span 3; text-align:center; color:var(--text-dim); padding: 20px;">กำลังโหลด...</div>';
-  try { const slips = await idbGetAllSlips(); if (slips.length === 0) { grid.innerHTML = '<div style="grid-column: span 3; text-align:center; color:var(--text-dim); padding: 20px;">ไม่มีสลิปในคลัง</div>'; return; } grid.innerHTML = ''; slips.sort((a,b) => (parseInt(String(b.id).slice(0,8),36)||0) - (parseInt(String(a.id).slice(0,8),36)||0)); slips.forEach(slip => { const img = document.createElement('img'); img.src = slip.dataUrl; img.style.cssText = 'width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:8px; border:1px solid var(--border-dim); cursor:pointer; background: var(--bg-deep);'; img.onclick = () => openSlipView(slip.dataUrl); grid.appendChild(img); }); } catch(e) { grid.innerHTML = '<div style="grid-column: span 3; text-align:center; color:var(--expense); padding: 20px;">โหลดรูปไม่สำเร็จ</div>'; }
+  try { const hidden = new Set(wallet?.trash.map(entry => entry.row.id) || []);
+    const slips = (await idbGetAllSlips()).filter(slip => !hidden.has(slip.id)); if (slips.length === 0) { grid.innerHTML = '<div style="grid-column: span 3; text-align:center; color:var(--text-dim); padding: 20px;">ไม่มีสลิปในคลัง</div>'; return; } grid.innerHTML = ''; slips.sort((a,b) => (parseInt(String(b.id).slice(0,8),36)||0) - (parseInt(String(a.id).slice(0,8),36)||0)); slips.forEach(slip => { const img = document.createElement('img'); img.src = slip.dataUrl; img.style.cssText = 'width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:8px; border:1px solid var(--border-dim); cursor:pointer; background: var(--bg-deep);'; img.onclick = () => openSlipView(slip.dataUrl); grid.appendChild(img); }); } catch(e) { grid.innerHTML = '<div style="grid-column: span 3; text-align:center; color:var(--expense); padding: 20px;">โหลดรูปไม่สำเร็จ</div>'; }
 }
 $('galleryBtn').addEventListener('click', () => { $('galleryOverlay').style.display = 'flex'; renderGallery(); });
 $('closeGallery').addEventListener('click', () => { $('galleryOverlay').style.display = 'none'; });
@@ -2446,12 +2754,10 @@ $('saveBtn').addEventListener('click', async event => {
 function confirmDeleteTransaction(id){
   if (!id) return;
   vibe();
-  customConfirm('ลบรายการนี้พร้อมสลิปที่แนบหรือไม่?', async yes => {
-    if (!yes || !await changeWallet((next, receipts) => {
-      if (!removeWalletRow(next,'transactions',id)) return false;
-      receipts.remove.push(id);
-    })) return;
+  customConfirm('ย้ายรายการนี้พร้อมสลิปไปถังขยะ 30 วันหรือไม่?', async yes => {
+    if (!yes || !await changeWallet(next => moveTransactionToTrash(next,id))) return;
     render();
+    showToast('ย้ายไปถังขยะแล้ว กู้คืนได้จากแท็บสรุป');
     if (editingId === id) closeSheet();
     if ($('searchOverlay').style.display === 'flex') renderSearch($('searchInput').value);
   });
@@ -2555,6 +2861,144 @@ $('clearBudgetBtn').addEventListener('click', () => {
   });
 });
 
+const walletDateTime = new Intl.DateTimeFormat('th-TH',{dateStyle:'medium',timeStyle:'short'});
+for (const [panel,close] of [['backupOverlay','closeBackup'],['trashOverlay','closeTrash'],['compareOverlay','closeCompare']]) {
+  $(panel).addEventListener('keydown', event => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      $(close).click();
+    }
+  });
+}
+function closeWalletPanel(panel,trigger){
+  $(panel).style.display = 'none';
+  $(trigger).focus();
+}
+async function renderBackupStatus(){
+  try {
+    const db = await openStateDB();
+    const {saved, snapshot, count} = await new Promise((resolve,reject) => {
+      const tx = db.transaction([STATE_DB_STORE,WALLET_SLIP_STORE]);
+      const state = tx.objectStore(STATE_DB_STORE);
+      const last = state.get(BACKUP_STATUS_KEY);
+      const latest = state.get('latest');
+      const slipCount = tx.objectStore(WALLET_SLIP_STORE).count();
+      tx.oncomplete = () => {
+        db.close();
+        resolve({saved:last.result, snapshot:latest.result, count:slipCount.result});
+      };
+      tx.onabort = () => { db.close(); reject(tx.error); };
+    });
+    $('backupLast').textContent = saved
+      ? `${walletDateTime.format(saved.at)} · ${saved.transactions} รายการ · ${saved.slips} สลิป`
+      : 'ยังไม่มีประวัติการส่งออก';
+    const trashCount = snapshot?.trash?.length || 0;
+    $('backupCounts').textContent = `${snapshot?.transactions?.length || 0} รายการ · ${count} สลิป · ${trashCount} ในถังขยะ`;
+  } catch {
+    $('backupCounts').textContent = 'อ่านสถานะสำรองไม่สำเร็จ';
+  }
+}
+async function saveBackupStatus(status){
+  const db = await openStateDB();
+  return new Promise((resolve,reject) => {
+    const tx = db.transaction(STATE_DB_STORE,'readwrite');
+    tx.objectStore(STATE_DB_STORE).put(status,BACKUP_STATUS_KEY);
+    tx.oncomplete = () => { db.close(); resolve(); };
+    tx.onabort = () => { db.close(); reject(tx.error); };
+  });
+}
+$('backupStatusBtn').addEventListener('click', async () => {
+  $('backupOverlay').style.display = 'flex';
+  $('closeBackup').focus();
+  await walletWrites;
+  await removeExpiredTrash();
+  renderBackupStatus();
+});
+$('closeBackup').addEventListener('click', () => closeWalletPanel('backupOverlay','backupStatusBtn'));
+
+function renderTrash(){
+  const list = $('trashList');
+  const entries = (wallet?.trash || []).filter(entry => !isTrashExpired(entry)).sort((a,b) => b.deletedAt - a.deletedAt);
+  list.replaceChildren();
+  $('trashEmpty').hidden = entries.length > 0;
+  for (const entry of entries) {
+    const {row,deletedAt} = entry;
+    const item = document.createElement('li');
+    item.className = 'trash-row';
+    const title = document.createElement('strong');
+    title.textContent = (row.type === 'income' ? 'รายรับ ' : 'รายจ่าย ') + fmtMoney(row.amount);
+    const summary = document.createElement('span');
+    summary.textContent = [row.date,getCatDisplay(row.category),row.note].filter(Boolean).join(' · ');
+    const expires = document.createElement('p');
+    expires.textContent = 'กู้คืนได้ถึง ' + walletDateTime.format(deletedAt + TRASH_RETENTION);
+    const actions = document.createElement('div');
+    actions.className = 'trash-actions';
+    const restore = document.createElement('button');
+    restore.className = 'icon-btn';
+    restore.type = 'button';
+    restore.textContent = 'กู้คืน';
+    restore.addEventListener('click', async () => {
+      restore.disabled = true;
+      const saved = await changeWallet(next => {
+        const current = next.trash.find(entry => entry.row.id === row.id);
+        if (!current || isTrashExpired(current) || next.transactions.some(tx => tx.id === row.id)) return false;
+        next.transactions.push(current.row);
+        next.trash = next.trash.filter(entry => entry.row.id !== row.id);
+        recordWalletRestore(next,'transactions',row.id);
+      });
+      if (saved) { render(); showToast('กู้รายการกลับมาแล้ว'); }
+      renderTrash();
+    });
+    actions.append(restore);
+    if (row.hasSlip) {
+      const preview = document.createElement('button');
+      preview.className = 'icon-btn';
+      preview.type = 'button';
+      preview.textContent = 'ดูสลิป';
+      preview.addEventListener('click', async () => {
+        try {
+          const receipt = await idbGetSlip(row.id);
+          if ($('trashOverlay').style.display === 'none') return;
+          if (receipt) openSlipView(receipt,true);
+          else customAlert('ไม่พบรูปสลิปบนอุปกรณ์นี้');
+        } catch { customAlert('เปิดรูปสลิปไม่สำเร็จ'); }
+      });
+      actions.append(preview);
+    }
+    const purge = document.createElement('button');
+    purge.className = 'icon-btn';
+    purge.type = 'button';
+    purge.textContent = 'ลบถาวร';
+    purge.addEventListener('click', () => {
+      customConfirm('ลบรายการและสลิปนี้ถาวรหรือไม่?',async yes => {
+        if (!yes || !await changeWallet((next,receipts) => {
+          if (!next.trash.some(entry => entry.row.id === row.id) || next.transactions.some(tx => tx.id === row.id)) return false;
+          next.trash = next.trash.filter(entry => entry.row.id !== row.id);
+          receipts.remove.push(row.id);
+        },{skipCloud:true})) return;
+        renderTrash();
+        showToast('ลบถาวรแล้ว');
+      });
+    });
+    actions.append(purge);
+    item.append(title,summary,expires,actions);
+    list.append(item);
+  }
+}
+$('trashBtn').addEventListener('click', async () => {
+  $('trashOverlay').style.display = 'flex';
+  $('closeTrash').focus();
+  await walletWrites;
+  await removeExpiredTrash();
+  renderTrash();
+});
+$('closeTrash').addEventListener('click', () => closeWalletPanel('trashOverlay','trashBtn'));
+document.addEventListener('visibilitychange', async () => {
+  if (document.visibilityState !== 'visible' || intentionalWipe) return;
+  await removeExpiredTrash();
+  if ($('trashOverlay').style.display === 'flex') renderTrash();
+});
+
 function downloadWalletFile(blob,filename){
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -2569,9 +3013,16 @@ $('exportBtn').addEventListener('click', async () => {
     const {state,slips} = await readReceipts(await openStateDB(),WALLET_SLIP_STORE,true);
     if (!state?.walletWriteId) throw new Error('no wallet');
     const {walletWriteId,reset, ...snapshot} = state;
-    const payload = {...snapshot, slips, exportedAt:new Date().toISOString()};
+    const expired = new Set((snapshot.trash || []).filter(entry => isTrashExpired(entry)).map(entry => entry.row.id));
+    snapshot.trash = (snapshot.trash || []).filter(entry => !expired.has(entry.row.id));
+    const included = slips.filter(slip => !expired.has(slip.id));
+    const at = Date.now();
+    const payload = {...snapshot, slips:included, exportedAt:new Date(at).toISOString()};
     downloadWalletFile(new Blob([JSON.stringify(payload)],{type:'application/json'}),`wallet-backup-${todayStr()}.json`);
-    showToast(`ดาวน์โหลดไฟล์สำรองพร้อมสลิป ${slips.length} รูปแล้ว`);
+    try { if (!intentionalWipe) await saveBackupStatus({at,transactions:payload.transactions.length,slips:included.length}); }
+    catch { $('backupLast').textContent = 'ส่งออกแล้ว แต่บันทึกประวัติไม่สำเร็จ'; }
+    if ($('backupOverlay').style.display === 'flex') renderBackupStatus();
+    showToast(`ส่งออกไฟล์สำรองพร้อมสลิป ${included.length} รูปแล้ว`);
   } catch { customAlert('สร้างไฟล์สำรองไม่สำเร็จ กรุณาลองอีกครั้ง'); }
 });
 function csvCell(value){
@@ -2597,7 +3048,8 @@ $('importFile').addEventListener('change', async event => {
     const incoming = validatedBackup(source);
     incoming.hasCategoryData = !!source.customCats;
     const slips = Array.isArray(incoming.slips) ? incoming.slips : [];
-    customConfirm(`รวม ${incoming.transactions.length} รายการและสลิป ${slips.length} รูปจากไฟล์กับข้อมูลในเครื่องหรือไม่?`,async yes => {
+    const trashCount = incoming.trash.filter(entry => !isTrashExpired(entry)).length;
+    customConfirm(`รวม ${incoming.transactions.length} รายการ สลิป ${slips.length} รูป และข้อมูลในถังขยะ ${trashCount} รายการจากไฟล์หรือไม่?`,async yes => {
       if (!yes) return;
       let conflictingReceipts = 0;
       const saved = await changeWallet(async (next, receipts) => {
@@ -2605,17 +3057,20 @@ $('importFile').addEventListener('change', async event => {
         const conflictingIds = new Set(incoming.transactions.filter(tx =>
           currentRows.has(tx.id) && !walletRowsEqual(tx,currentRows.get(tx.id))).map(tx => tx.id));
         mergeWallet(next,incoming,false);
-        const existing = new Set((await idbGetAllSlips()).map(slip => slip.id));
+        const existing = new Set(slips.length ? (await idbGetAllSlips()).map(slip => slip.id) : []);
+        const expired = new Set(incoming.trash.filter(entry => isTrashExpired(entry)).map(entry => entry.row.id));
         const toRestore = new Set();
         for (const slip of slips) {
           const id = String(slip.id);
-          if (existing.has(id)) continue;
+          if (existing.has(id) || expired.has(id)) continue;
           if (conflictingIds.has(id)) { conflictingReceipts++; continue; }
           receipts.put.push({id,dataUrl:slip.dataUrl});
           existing.add(id);
           toRestore.add(id);
         }
-        for (const tx of next.transactions) if (toRestore.has(tx.id)) tx.hasSlip = true;
+        for (const tx of [...next.transactions,...next.trash.map(entry => entry.row)]) {
+          if (toRestore.has(tx.id)) tx.hasSlip = true;
+        }
       }, {updateNote:true});
       if (!saved) return;
       render();
@@ -2624,37 +3079,6 @@ $('importFile').addEventListener('change', async event => {
   } catch { customAlert('ไฟล์สำรองไม่ถูกต้อง ข้อมูลเดิมยังอยู่'); }
 });
 
-
-const WEATHER_CACHE_KEY = 'wallet_weather_cache_v1'; const WEATHER_CACHE_MS = 30 * 60 * 1000;
-const WMO_DESC = { 0:['ท้องฟ้าแจ่มใส','☀️'], 1:['มีเมฆบางส่วน','🌤️'], 2:['เมฆเป็นบางส่วน','⛅'], 3:['เมฆมาก','☁️'], 45:['หมอก','🌫️'], 48:['หมอกน้ำแข็ง','🌫️'], 51:['ฝนละอองเบา','🌦️'], 53:['ฝนละออง','🌦️'], 55:['ฝนละอองหนัก','🌧️'], 56:['ฝนละอองเยือกแข็ง','🌧️'], 57:['ฝนละอองเยือกแข็งหนัก','🌧️'], 61:['ฝนตกเบา','🌦️'], 63:['ฝนตกปานกลาง','🌧️'], 65:['ฝนตกหนัก','🌧️'], 66:['ฝนเยือกแข็งเบา','🌧️'], 67:['ฝนเยือกแข็งหนัก','🌧️'], 71:['หิมะตกเบา','🌨️'], 73:['หิมะตกปานกลาง','🌨️'], 75:['หิมะตกหนัก','🌨️'], 77:['เกล็ดหิมะ','🌨️'], 80:['ฝนซู่เบา','🌦️'], 81:['ฝนซู่ปานกลาง','🌧️'], 82:['ฝนซู่หนักมาก','⛈️'], 85:['หิมะซู่เบา','🌨️'], 86:['หิมะซู่หนัก','🌨️'], 95:['พายุฝนฟ้าคะนอง','⛈️'], 96:['พายุฝนฟ้าคะนองมีลูกเห็บเบา','⛈️'], 99:['พายุฝนฟ้าคะนองมีลูกเห็บหนัก','⛈️'] };
-function describeWeatherCode(code){ return WMO_DESC[code] || ['ไม่ทราบสภาพอากาศ','🌡️']; }
-function loadWeatherCache(){ try{ const raw = localStorage.getItem(WEATHER_CACHE_KEY); if(!raw) return null; const data = JSON.parse(raw); if(Date.now() - data.ts > WEATHER_CACHE_MS) return null; return data; }catch(e){ return null; } }
-function saveWeatherCache(data){ try{ localStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify(Object.assign({}, data, { ts: Date.now() }))); }catch(e){} }
-async function reverseGeocodeThai(lat, lon){ try{ const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=14&accept-language=th`); const data = await res.json(); const addr = data.address || {}; return addr.county || addr.city_district || addr.suburb || addr.town || addr.city || addr.state || 'ตำแหน่งปัจจุบัน'; }catch(e){ return 'ตำแหน่งปัจจุบัน'; } }
-async function fetchWeatherForCoords(lat, lon){ const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&hourly=temperature_2m,precipitation_probability,weather_code&timezone=Asia%2FBangkok&forecast_days=2`; const res = await fetch(url); if(!res.ok) throw new Error('weather fetch failed'); return res.json(); }
-function renderWeather(data){
-  const [desc, icon] = describeWeatherCode(data.code); const contentEl = $('weatherContent'); let hourlyHtml = '';
-  if (data.hourly && data.hourly.length > 0) { hourlyHtml = '<div class="hourly-forecast">'; data.hourly.forEach(h => { const d = new Date(h.time); const timeStr = d.getHours().toString().padStart(2, '0') + ':00'; const [, hIcon] = describeWeatherCode(h.code); const isWet = h.prob >= 30; hourlyHtml += `<div class="hourly-item"><div class="h-time">${timeStr}</div><div class="h-icon">${hIcon}</div><div class="h-temp">${Math.round(h.temp)}°</div><div class="h-rain ${isWet ? 'wet' : ''}">${h.prob}%</div></div>`; }); hourlyHtml += '</div>'; }
-  contentEl.innerHTML = `<div class="weather-main"><div class="weather-icon">${icon}</div><div class="weather-info"><div class="weather-place">📍 ${escapeHtml(data.place)}</div><div class="weather-temp">${Math.round(data.temp)}°C · ${desc}</div></div></div>${hourlyHtml}`;
-}
-function loadWeather(){
-  const contentEl = $('weatherContent'); const cached = loadWeatherCache(); if(cached){ renderWeather(cached); return; }
-  if(!('geolocation' in navigator)){ contentEl.innerHTML = '<div class="weather-error">อุปกรณ์นี้ไม่รองรับการหาตำแหน่ง</div>'; return; }
-  contentEl.innerHTML = '<div class="weather-error">📡 กำลังหาตำแหน่ง...</div>';
-  navigator.geolocation.getCurrentPosition(async (pos)=>{
-    const { latitude, longitude } = pos.coords;
-    try{
-      const [weatherData, placeName] = await Promise.all([ fetchWeatherForCoords(latitude, longitude), reverseGeocodeThai(latitude, longitude) ]);
-      const nowMs = Date.now(); let startIndex = 0;
-      for (let i = 0; i < weatherData.hourly.time.length; i++) { if (new Date(weatherData.hourly.time[i]).getTime() >= nowMs - 3600000) { startIndex = i; break; } }
-      const next12Hours = [];
-      for (let i = startIndex; i < startIndex + 12; i++) { if (weatherData.hourly.time[i]) { next12Hours.push({ time: weatherData.hourly.time[i], temp: weatherData.hourly.temperature_2m[i], prob: weatherData.hourly.precipitation_probability[i], code: weatherData.hourly.weather_code[i] }); } }
-      const result = { temp: weatherData.current.temperature_2m, code: weatherData.current.weather_code, hourly: next12Hours, place: placeName };
-      saveWeatherCache(result); renderWeather(result);
-    }catch(err){ console.error(err); contentEl.innerHTML = '<div class="weather-error">โหลดข้อมูลอากาศไม่สำเร็จ (อาจออฟไลน์)</div>'; }
-  }, (err)=>{ console.error(err); contentEl.innerHTML = '<button class="weather-ask-btn" id="weatherAskBtn">📍 เปิดสิทธิ์ตำแหน่งเพื่อดูสภาพอากาศ</button>'; const retryBtn = $('weatherAskBtn'); if(retryBtn) retryBtn.addEventListener('click', loadWeather); }, { timeout: 10000, maximumAge: 600000 });
-}
-(function initWeather(){ const btn = $('weatherAskBtn'); if(btn) btn.addEventListener('click', loadWeather); if(navigator.permissions && navigator.permissions.query){ navigator.permissions.query({ name: 'geolocation' }).then(status=>{ if(status.state === 'granted') loadWeather(); }).catch(()=>{}); } })();
 
 const REMINDER_SETTINGS_KEY = 'wallet_reminder_settings_v1'; const REMINDER_SHOWN_KEY = 'wallet_reminder_shown_v1'; 
 function loadReminderSettings(){ try{ const raw = localStorage.getItem(REMINDER_SETTINGS_KEY); if(!raw) return { enabled: false, daysBefore: 0, note: '' }; return Object.assign({ enabled: false, daysBefore: 0, note: '' }, JSON.parse(raw)); }catch(e){ return { enabled: false, daysBefore: 0, note: '' }; } }
@@ -2699,6 +3123,7 @@ async function startAppData(){
     customAlert('เปิดข้อมูลในเครื่องไม่สำเร็จ กรุณาปิดแท็บอื่นของแอปและเปิดใหม่');
     return;
   }
+  await removeExpiredTrash();
   render();
   checkMonthEndReminder();
   checkAppShortcuts();
